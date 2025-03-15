@@ -1,5 +1,6 @@
 package com.ucad.m2SIR.SenBook.configuration;
 
+import com.ucad.m2SIR.SenBook.repository.TokenRepository;
 import com.ucad.m2SIR.SenBook.service.UserAuthService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -18,10 +19,12 @@ import java.io.IOException;
 public class JwtFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserAuthService userAuthService;
+    private final TokenRepository tokenRepository;
 
-    public JwtFilter(JwtService jwtService, UserAuthService userAuthService) {
+    public JwtFilter(JwtService jwtService, UserAuthService userAuthService, TokenRepository tokenRepository) {
         this.jwtService = jwtService;
         this.userAuthService = userAuthService;
+        this.tokenRepository = tokenRepository;
     }
 
     @Override
@@ -38,7 +41,10 @@ public class JwtFilter extends OncePerRequestFilter {
         {
             UserDetails userDetails = userAuthService.loadUserByUsername(username);
             boolean isTokenValid = jwtService.validateToken(token,userDetails);
-            if(isTokenValid)
+            boolean isTokenValidFromDB = tokenRepository.findByToken(token)
+                    .map(t-> !t.getExpired() && !t.getRevoked())
+                    .orElse(false);
+            if(isTokenValid && isTokenValidFromDB)
             {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails,null,userDetails.getAuthorities());
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
