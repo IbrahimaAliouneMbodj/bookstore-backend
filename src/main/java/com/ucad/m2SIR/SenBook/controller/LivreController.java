@@ -2,11 +2,7 @@ package com.ucad.m2SIR.SenBook.controller;
 
 import com.ucad.m2SIR.SenBook.model.Livre;
 import com.ucad.m2SIR.SenBook.service.LivreService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -23,9 +19,9 @@ public class LivreController {
         return livreService.getAllLivre();
     }
     // Récupérer les détails d'un livre par son ID
-    @GetMapping("/{id}")
     //@PreAuthorize("hasRole('ADMIN')") C'est pour securiser une methode
-    public Livre getLivreById(@RequestParam int id) {
+    @GetMapping("/{id}")
+    public Livre getLivreById(@PathVariable int id) {
         return livreService.getLivre(id);
     }
     // Récupérer les livres par genre
@@ -34,13 +30,18 @@ public class LivreController {
         return livreService.getLivreByGenre(genre);
     }
     // Récupérer les livres par titre
-    @GetMapping("/title")
-    public List<Livre> getLivreByTitle(@RequestParam String title) {
-        return livreService.getLivreByTitle(title);
+    @GetMapping("/titre")
+    public List<Livre> getLivreByTitle(@RequestParam String titre) {
+        return livreService.getLivreByTitle(titre);
     }
     // Récupérer les livres par Auteur
-    @GetMapping("/Author")
+    @GetMapping("/auteur")
     public List<Livre> getLivreByAuthor(@RequestParam String author) {
         return livreService.getLivreByAuthor(author);
+    }
+
+    @GetMapping("/isbn")
+    public Livre getLivreByISBN(@RequestParam String isbn) {
+        return livreService.getLivreParISBN(isbn);
     }
 }
