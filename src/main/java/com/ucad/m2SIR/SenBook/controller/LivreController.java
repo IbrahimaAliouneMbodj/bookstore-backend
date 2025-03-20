@@ -24,16 +24,23 @@ public class LivreController {
     }
     // Récupérer les détails d'un livre par son ID
     @GetMapping("/{id}")
+    //@PreAuthorize("hasRole('ADMIN')") C'est pour securiser une methode
     public Livre getLivreById(@RequestParam int id) {
         return livreService.getLivre(id);
     }
     // Récupérer les livres par genre
+    @GetMapping("/genre")
     public List<Livre> getLivreByGenre(@RequestParam String genre) {
         return livreService.getLivreByGenre(genre);
     }
-    // Récupérer les livres par genre
+    // Récupérer les livres par titre
+    @GetMapping("/title")
     public List<Livre> getLivreByTitle(@RequestParam String title) {
         return livreService.getLivreByTitle(title);
     }
-
+    // Récupérer les livres par Auteur
+    @GetMapping("/Author")
+    public List<Livre> getLivreByAuthor(@RequestParam String author) {
+        return livreService.getLivreByAuthor(author);
+    }
 }
