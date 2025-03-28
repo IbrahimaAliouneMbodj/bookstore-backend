@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PanierRepository extends JpaRepository<Panier, Integer> {
@@ -21,4 +22,6 @@ public interface PanierRepository extends JpaRepository<Panier, Integer> {
     boolean existsByUtilisateurAndDetailLivre(Utilisateur user, DetailsLivre livre);
 
     void deleteAllByUtilisateurAndDetailLivre(Utilisateur user, DetailsLivre livre);
+
+    Optional<Panier> findByUtilisateurAndDetailLivre(Utilisateur user, DetailsLivre livre);
 }

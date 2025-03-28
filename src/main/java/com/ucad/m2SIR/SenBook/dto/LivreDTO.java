@@ -1,8 +1,8 @@
 package com.ucad.m2SIR.SenBook.dto;
 
-import com.ucad.m2SIR.SenBook.model.Auteur;
 import com.ucad.m2SIR.SenBook.model.Livre;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -15,11 +15,23 @@ public class LivreDTO{
     private String image;
     private Integer nombrePages;
     private String description;
-    private List<Auteur> auteurs;
+    private List<Integer> auteurIds;
 
     public LivreDTO() {
     }
 
+    public LivreDTO(Livre livre)
+    {
+        this.titre = livre.getTitre();
+        this.isbn = livre.getIsbn();
+        this.description = livre.getDescription();
+        this.datePublication = livre.getDatePublication();
+        this.editeur = livre.getEditeur();
+        this.genre = livre.getGenre();
+        this.image = livre.getImage();
+        this.nombrePages = livre.getNombrePages();
+
+    }
 
     public String getTitre() {
         return titre;
@@ -85,14 +97,13 @@ public class LivreDTO{
         this.description = description;
     }
 
-    public List<Auteur> getAuteurs() {
-        return auteurs;
+    public List<Integer> getAuteurIds() {
+        return auteurIds;
     }
 
-    public void setAuteurs(List<Auteur> auteurs) {
-        this.auteurs = auteurs;
+    public void setAuteurIds(List<Integer> auteurIds) {
+        this.auteurIds = auteurIds;
     }
-
 
     public Livre getLivre(){
 
@@ -105,7 +116,7 @@ public class LivreDTO{
         livre.setImage(this.image);
         livre.setNombrePages(this.nombrePages);
         livre.setDescription(this.description);
-
+        livre.setCreeLe(Instant.now());
         return livre;
     }
 }

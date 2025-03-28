@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/livre")
+@RequestMapping("/api/livres")
 public class LivreController {
     private final LivreService livreService;
     public LivreController(LivreService livreService) {
@@ -20,8 +20,8 @@ public class LivreController {
     public ResponseEntity<Object> getAllLivre() {
         List<Livre> livres = livreService.getAllLivre();
         return livres != null
-                ? new ResponseEntity<>(livreService.getAllLivre(), HttpStatus.OK)
-                : new ResponseEntity<>("Une erreur s'est produite lors de l'execution", HttpStatus.INTERNAL_SERVER_ERROR);
+                ? new ResponseEntity<>(livres, HttpStatus.OK)
+                : new ResponseEntity<>("Failed : Une erreur s'est produite lors de l'execution", HttpStatus.INTERNAL_SERVER_ERROR);
     }
     // Récupérer les détails d'un livre par son ID
     @GetMapping("/{id}")
@@ -29,38 +29,38 @@ public class LivreController {
         Livre livre = livreService.getLivre(id);
         return livre != null
                 ? new ResponseEntity<>(livre, HttpStatus.OK)
-                : new ResponseEntity<>("Une erreur s'est produite lors de l'execution", HttpStatus.INTERNAL_SERVER_ERROR);
+                : new ResponseEntity<>("Failed : Une erreur s'est produite lors de l'execution", HttpStatus.INTERNAL_SERVER_ERROR);
     }
     // Récupérer les livres par genre
-    @GetMapping("/genre")
-    public ResponseEntity<Object> getLivreByGenre(@RequestParam String genre) {
+    @GetMapping("/genre/{gemre}")
+    public ResponseEntity<Object> getLivreByGenre(@PathVariable String genre) {
         List<Livre> livres = livreService.getLivreByGenre(genre);
         return livres != null
                 ? new ResponseEntity<>(livres, HttpStatus.OK)
-                : new ResponseEntity<>("Une erreur s'est produite lors de l'execution", HttpStatus.INTERNAL_SERVER_ERROR);
+                : new ResponseEntity<>("failed : Une erreur s'est produite lors de l'execution", HttpStatus.INTERNAL_SERVER_ERROR);
     }
     // Récupérer les livres par titre
-    @GetMapping("/titre")
-    public ResponseEntity<Object> getLivreByTitle(@RequestParam String titre) {
+    @GetMapping("/titre/{titre}")
+    public ResponseEntity<Object> getLivreByTitle(@PathVariable String titre) {
         List<Livre> livres = livreService.getLivreByTitle(titre);
         return livres != null
                 ? new ResponseEntity<>(livres, HttpStatus.OK)
-                : new ResponseEntity<>("Une erreur s'est produite lors de l'execution", HttpStatus.INTERNAL_SERVER_ERROR);
+                : new ResponseEntity<>("Failed : Une erreur s'est produite lors de l'execution", HttpStatus.INTERNAL_SERVER_ERROR);
     }
     // Récupérer les livres par Auteur
-    @GetMapping("/auteur")
-    public ResponseEntity<Object> getLivreByAuthor(@RequestParam String author) {
-        List<Livre> livres = livreService.getLivreByAuthor(author);
+    @GetMapping("/auteur/{nom}")
+    public ResponseEntity<Object> getLivreByAuthor(@PathVariable String nom) {
+        List<Livre> livres = livreService.getLivreByAuthorName(nom);
         return livres != null
                 ? new ResponseEntity<>(livres, HttpStatus.OK)
-                : new ResponseEntity<>("Une erreur s'est produite lors de l'execution", HttpStatus.INTERNAL_SERVER_ERROR);
+                : new ResponseEntity<>("Failed : Une erreur s'est produite lors de l'execution", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @GetMapping("/isbn")
-    public ResponseEntity<Object> getLivreByISBN(@RequestParam String isbn) {
+    @GetMapping("/isbn/{isbn}")
+    public ResponseEntity<Object> getLivreByISBN(@PathVariable String isbn) {
         Livre livre = livreService.getLivreParISBN(isbn);
         return livre != null
                 ? new ResponseEntity<>(livre, HttpStatus.OK)
-                : new ResponseEntity<>("Une erreur s'est produite lors de l'execution", HttpStatus.INTERNAL_SERVER_ERROR);
+                : new ResponseEntity<>("Failed : Une erreur s'est produite lors de l'execution", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

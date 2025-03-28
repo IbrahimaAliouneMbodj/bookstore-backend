@@ -1,13 +1,13 @@
 package com.ucad.m2SIR.SenBook.service;
 
 import com.ucad.m2SIR.SenBook.customTypes.UserRole;
+import com.ucad.m2SIR.SenBook.dto.UtilisateurDTO;
 import com.ucad.m2SIR.SenBook.model.Utilisateur;
 import com.ucad.m2SIR.SenBook.repository.UtilisateurRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -18,8 +18,13 @@ public class UtilisateurService {
         this.utilisateurRepository = utilisateurRepository;
     }
 
-    public List<Utilisateur> getUtilisateurs() {
-        return utilisateurRepository.findAllByRole(UserRole.CLIENT);
+    public List<UtilisateurDTO> getUtilisateurs() {
+        List<Utilisateur> allUsers = utilisateurRepository.findAllByRole(UserRole.CLIENT);
+        List<UtilisateurDTO> users = new ArrayList<>();
+        for (Utilisateur user : allUsers) {
+            users.add(new UtilisateurDTO(user));
+        }
+        return users;
     }
 
     public Utilisateur getUtilisateurById(int id) {
@@ -27,15 +32,14 @@ public class UtilisateurService {
     }
 
     public Utilisateur getUtilisateurByNom(String nom) {
-       return utilisateurRepository.findByNomUtilisateur(nom).orElse(null);
+        return utilisateurRepository.findByNomUtilisateur(nom).orElse(null);
     }
 
     @Transactional
-    public ResponseEntity<String> deleteUtilisateur(int id) {
+    public String deleteUtilisateur(int id) {
         utilisateurRepository.deleteById(id);
-        if(utilisateurRepository.existsById(id)){
-            return new ResponseEntity<>("Erreur lors de la suppression",HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        return new ResponseEntity<>("Success", HttpStatus.OK);
+        return !utilisateurRepository.existsById(id)
+                ? "Success : Utilisateur supprimé avec succés"
+                : "Failed : Erreur lors de la suppression de l'utilisateur";
     }
 }

@@ -1,16 +1,34 @@
 package com.ucad.m2SIR.SenBook.dto;
 
 import com.ucad.m2SIR.SenBook.customTypes.BookFormat;
+import com.ucad.m2SIR.SenBook.model.DetailsLivre;
 
 import java.math.BigDecimal;
 
-public class DetailLivreDTO {
+public class DetailsLivreDTO {
+    private int id;
     private int idLivre;
     private BookFormat format;
     private BigDecimal prixUnitaire;
     private String langue;
 
-    public DetailLivreDTO() {
+    public DetailsLivreDTO() {
+    }
+
+    public DetailsLivreDTO(DetailsLivre detailsLivre) {
+        this.id = detailsLivre.getId();
+        this.idLivre = detailsLivre.getLivre().getId();
+        this.format = detailsLivre.getFormat();
+        this.prixUnitaire = detailsLivre.getPrixUnitaire();
+        this.langue = detailsLivre.getLangue();
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public BookFormat getFormat() {

@@ -2,12 +2,11 @@ package com.ucad.m2SIR.SenBook.service;
 
 import com.ucad.m2SIR.SenBook.customTypes.CommandStatus;
 import com.ucad.m2SIR.SenBook.customTypes.PaymentStatus;
+import com.ucad.m2SIR.SenBook.dto.CommandeDTO;
 import com.ucad.m2SIR.SenBook.dto.DetailsCommandeDTO;
 import com.ucad.m2SIR.SenBook.dto.PaiementDTO;
 import com.ucad.m2SIR.SenBook.model.*;
 import com.ucad.m2SIR.SenBook.repository.*;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,15 +41,15 @@ public class CommandeService {
 
 
     // Crée une nouvelle commande pour un utilisateur.
-    public ResponseEntity<Object> creerCommande(Integer utilisateurId, List<DetailsCommandeDTO> details) {
+    public String creerCommande(Integer utilisateurId, List<DetailsCommandeDTO> details) {
         Utilisateur utilisateur = utilisateurRepository.findById(utilisateurId).orElse(null);
-        if(utilisateur==null)
-            return new ResponseEntity<>("Utilisateur introuvable",HttpStatus.NOT_FOUND);
+        if (utilisateur == null)
+            return "Failed : Utilisateur introuvable";
 
         Commande commande = new Commande();
         commande.setUtilisateur(utilisateur);
         commande.setDateCommande(Instant.now());
-        commande.setStatut(CommandStatus.PENDING);
+        commande.setStatus(CommandStatus.PENDING);
         commande.setPrixTotal(BigDecimal.ZERO);
 
         commande = commandeRepository.save(commande);
@@ -58,16 +57,16 @@ public class CommandeService {
         BigDecimal prixTotal = BigDecimal.ZERO;
 
         for (DetailsCommandeDTO detailDTO : details) {
-            DetailsLivre detailsLivre = detailsLivreRepository.findById(detailDTO.getDetailsLivreId()).orElse(null);
-            if(detailsLivre==null)
-                return new ResponseEntity<>("Détail du livre introuvable",HttpStatus.NOT_FOUND);
+            DetailsLivre detailsLivre = detailsLivreRepository.findById(detailDTO.getDetailsLivre().getIdLivre()).orElse(null);
+            if (detailsLivre == null)
+                return "Failed : Détail du livre introuvable";
 
             Inventaire inventaire = inventaireRepository.findByDetailLivre(detailsLivre).orElse(null);
-            if (inventaire==null)
-                return new ResponseEntity<>("Stock indisponible",HttpStatus.NOT_FOUND);
+            if (inventaire == null)
+                return "Failed : Stock indisponible";
 
             if (inventaire.getQuantite() < detailDTO.getQuantite()) {
-                return new ResponseEntity<>("Stock insuffisant pour le livre: " + detailsLivre.getLivre().getTitre(),HttpStatus.INSUFFICIENT_STORAGE);
+                return "Failed : Stock insuffisant pour le livre: " + detailsLivre.getLivre().getTitre();
             }
 
             inventaire.setQuantite(inventaire.getQuantite() - detailDTO.getQuantite());
@@ -84,52 +83,55 @@ public class CommandeService {
 
         commande.setPrixTotal(prixTotal);
         commandeRepository.save(commande);
-        return new ResponseEntity<>("Commande créé avec succés",HttpStatus.CREATED);
+        return "Success : Commande créé avec succés";
     }
 
     // Annule une commande et restaure les stocks.
-    public ResponseEntity<Object> annulerCommande(Integer commandeId) {
+    public String annulerCommande(Integer commandeId) {
         Commande commande = commandeRepository.findById(commandeId).orElse(null);
 
-        if(commande == null)
-            return new ResponseEntity<>("Commande introuvable",HttpStatus.NOT_FOUND);
+        if (commande == null)
+            return "Failed : Commande introuvable";
 
-        if (commande.getStatut() == CommandStatus.DELIVERED) {
-            return new ResponseEntity<>("Impossible d'annuler une commande complétée",HttpStatus.INTERNAL_SERVER_ERROR);
+        if (commande.getStatus() == CommandStatus.DELIVERED) {
+            return "Failed : Impossible d'annuler une commande complétée";
         }
 
         List<DetailsCommande> details = detailsCommandeRepository.findByCommande(commande);
         for (DetailsCommande detail : details) {
             Inventaire inventaire = inventaireRepository.findByDetailLivre(detail.getDetailLivre()).orElse(null);
-            if(inventaire == null)
-                return new ResponseEntity<>("Stock introuvable",HttpStatus.NOT_FOUND);
+            if (inventaire == null)
+                return "Failed : Stock introuvable";
             inventaire.setQuantite(inventaire.getQuantite() + detail.getQuantite());
             inventaireRepository.save(inventaire);
         }
 
-        commande.setStatut(CommandStatus.CANCELLED);
+        commande.setStatus(CommandStatus.CANCELLED);
         commandeRepository.save(commande);
-        return new ResponseEntity<>("Annulé avec succés",HttpStatus.OK);
+        return "Success : La commande a été annulé";
     }
 
     // Récupère toutes les commandes d'un utilisateur
-    public ResponseEntity<Object> getCommandes(Integer utilisateurId) {
+    public List<CommandeDTO> getCommandes(Integer utilisateurId) {
         Utilisateur utilisateur = utilisateurRepository.findById(utilisateurId).orElse(null);
 
-        if(utilisateur==null)
-            return new ResponseEntity<>("Utilisateur introuvable",HttpStatus.NOT_FOUND);
+        if (utilisateur == null)
+            return null;
 
-        return new ResponseEntity<>(commandeRepository.findByUtilisateur(utilisateur),HttpStatus.OK);
+        return commandeRepository.findByUtilisateur(utilisateur)
+                .stream()
+                .map(CommandeDTO::new)
+                .toList();
     }
 
     // Associe un paiement à une commande.
-    public ResponseEntity<Object> effectuerPaiement(PaiementDTO paiementDTO) {
+    public String effectuerPaiement(PaiementDTO paiementDTO) {
         Commande commande = commandeRepository.findById(paiementDTO.getCommandeId()).orElse(null);
-        if(commande == null)
-            return new ResponseEntity<>("Commande introuvable",HttpStatus.NOT_FOUND);
+        if (commande == null)
+            return "Failed : Commande introuvable";
 
-        if (commande.getStatut() == CommandStatus.DELIVERED) {
-            return new ResponseEntity<>("La commande a déjà été validé",HttpStatus.INTERNAL_SERVER_ERROR);
+        if (commande.getStatus() == CommandStatus.DELIVERED) {
+            return "Failed : La commande a déjà été validé";
         }
 
         Paiement paiement = new Paiement();
@@ -144,7 +146,7 @@ public class CommandeService {
         // Vérifier si le paiement couvre le prix total
         if (paiementDTO.getMontant().compareTo(commande.getPrixTotal()) >= 0) {
             paiement.setStatut(PaymentStatus.CONFIRMED);
-            commande.setStatut(CommandStatus.DELIVERED);
+            commande.setStatus(CommandStatus.DELIVERED);
         } else {
             paiement.setStatut(PaymentStatus.REJECTED);
         }
@@ -152,7 +154,7 @@ public class CommandeService {
         paiementRepository.save(paiement);
         commandeRepository.save(commande);
 
-        return new ResponseEntity<>("Success", HttpStatus.CREATED);
+        return "Success : Paiement effectuer avec succés";
     }
 }
 

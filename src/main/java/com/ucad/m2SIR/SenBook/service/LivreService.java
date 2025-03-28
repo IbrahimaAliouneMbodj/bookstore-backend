@@ -31,8 +31,8 @@ public class LivreService {
     public List<Livre> getLivreByTitle(String title){
         return livreRepository.findByTitreContaining(title);
     }
-    public List<Livre> getLivreByAuthor(String author){
-        return livresAuteurRepository.findAllByAuteur(author);
+    public List<Livre> getLivreByAuthorName(String authorName){
+        return livresAuteurRepository.findAllByAuteurNom(authorName);
     }
     public List<Livre> getLivreByGenre(String genre){
         return livreRepository.findByGenreContaining(genre);

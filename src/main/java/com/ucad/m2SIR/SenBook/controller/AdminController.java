@@ -2,10 +2,14 @@ package com.ucad.m2SIR.SenBook.controller;
 
 import com.ucad.m2SIR.SenBook.customTypes.CommandStatus;
 import com.ucad.m2SIR.SenBook.dto.*;
+import com.ucad.m2SIR.SenBook.model.Auteur;
 import com.ucad.m2SIR.SenBook.service.AdminService;
 import com.ucad.m2SIR.SenBook.service.InventaireService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RestController
@@ -16,130 +20,247 @@ public class AdminController {
     private final InventaireService inventaireService;
 
 
-    public AdminController(AdminService adminService, InventaireService inventaireService) {
+    public AdminController(AdminService adminService,
+                           InventaireService inventaireService) {
         this.adminService = adminService;
         this.inventaireService = inventaireService;
     }
 
     @PostMapping("/auteurs")
-    public ResponseEntity<Object> createAuteur(@RequestBody AuteurDTO auteurDTO) {
-        return adminService.createAuteur(auteurDTO);
+    public ResponseEntity<Object> createAuteur(@RequestBody Auteur auteur) {
+        String response = adminService.createAuteur(auteur);
+        return new ResponseEntity<>(
+                response,
+                response.startsWith("Success")
+                        ? HttpStatus.CREATED
+                        : HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+
+    @PutMapping("/auteurs")
+    public ResponseEntity<Object> updateAuteur(@RequestBody Auteur auteur) {
+        String response = adminService.updateAuteur(auteur);
+        return new ResponseEntity<>(
+                response,
+                response.startsWith("Success")
+                        ? HttpStatus.CREATED
+                        : HttpStatus.INTERNAL_SERVER_ERROR
+        );
     }
 
     @DeleteMapping("/auteurs/{id}")
     public ResponseEntity<Object> removeAuteur(@PathVariable int id) {
-        return adminService.removeAuteur(id);
+        String response = adminService.removeAuteur(id);
+        return new ResponseEntity<>(
+                response,
+                response.startsWith("Success")
+                        ? HttpStatus.OK
+                        : HttpStatus.INTERNAL_SERVER_ERROR
+        );
     }
 
     @GetMapping("/auteurs")
     public ResponseEntity<Object> getAuteurs() {
-        return adminService.getAuteurs();
+        List<Auteur> response = adminService.getAuteurs();
+        return response != null
+                ? new ResponseEntity<>(response, HttpStatus.OK)
+                : new ResponseEntity<>("Failed : Erreur lors de la recuperation des auteurs", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @GetMapping("/auteurs/{id}")
     public ResponseEntity<Object> getAuteurById(@PathVariable int id) {
-        return adminService.getAuteurById(id);
+        Auteur response = adminService.getAuteurById(id);
+        return response != null
+                ? new ResponseEntity<>(response, HttpStatus.OK)
+                : new ResponseEntity<>("Failed : L'auteur spécifié n'as pas été trouvé", HttpStatus.NOT_FOUND);
     }
 
-    @GetMapping("/auteurs/nom")
-    public ResponseEntity<Object> getAuteurByNom(@RequestParam String nom) {
-        return adminService.getAuteurByNom(nom);
+    @GetMapping("/auteurs/nom/{nom}")
+    public ResponseEntity<Object> getAuteurByNom(@PathVariable String nom) {
+        List<Auteur> response = adminService.getAuteurByNom(nom);
+        return response != null
+                ? new ResponseEntity<>(response, HttpStatus.OK)
+                : new ResponseEntity<>("Failed : Une erreur est survenue lors de la recuperation", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @PostMapping("/livre")
+    @PostMapping("/livres")
     public ResponseEntity<Object> createLivre(@RequestBody LivreDTO livreDTO) {
-        return adminService.createLivre(livreDTO);
+        String response = adminService.createLivre(livreDTO);
+        return new ResponseEntity<>(
+                response,
+                response.startsWith("Success")
+                        ? HttpStatus.CREATED
+                        : HttpStatus.INTERNAL_SERVER_ERROR
+        );
     }
 
-    @DeleteMapping("/livre/{id}")
+    @DeleteMapping("/livres/{id}")
     public ResponseEntity<Object> removeLivre(@PathVariable int id) {
-        return adminService.removeLivre(id);
+        String response = adminService.removeLivre(id);
+        return new ResponseEntity<>(
+                response,
+                response.startsWith("Success")
+                        ? HttpStatus.OK
+                        : HttpStatus.INTERNAL_SERVER_ERROR
+        );
     }
 
-    @PostMapping("/detailLivre")
-    public ResponseEntity<Object> createDetailLivre(@RequestBody DetailLivreDTO detailLivre) {
-        return adminService.createDetailLivre(detailLivre);
+    @PostMapping("/detailsLivre")
+    public ResponseEntity<Object> createDetailLivre(@RequestBody DetailsLivreDTO detailLivre) {
+        String response = adminService.createDetailLivre(detailLivre);
+        return new ResponseEntity<>(
+                response,
+                response.startsWith("Success")
+                        ? HttpStatus.CREATED
+                        : HttpStatus.INTERNAL_SERVER_ERROR
+        );
     }
 
-    @DeleteMapping("/detailLivre/{id}")
+    @DeleteMapping("/detailsLivre/{id}")
     public ResponseEntity<Object> removeDetailsLivre(@PathVariable int id) {
-        return adminService.removeDetailsLivre(id);
+        String response = adminService.removeDetailsLivre(id);
+        return new ResponseEntity<>(
+                response,
+                response.startsWith("Success")
+                        ? HttpStatus.OK
+                        : HttpStatus.INTERNAL_SERVER_ERROR
+        );
     }
 
     @GetMapping("/utilisateurs")
     public ResponseEntity<Object> getUtilisateurs() {
-        return adminService.getUtilisateurs();
+        List<UtilisateurDTO> response = adminService.getUtilisateurs();
+        return response != null
+                ? new ResponseEntity<>(response, HttpStatus.OK)
+                : new ResponseEntity<>("Failed : Une erreur s'est produite lors de la recuperation", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @DeleteMapping("/utilisateurs/{id}")
     public ResponseEntity<Object> deleteUtilisateur(@PathVariable int id) {
-        return adminService.deleteUtilisateurs(id);
-    }
-
-    //Change le statut d'une commande
-    @PutMapping("/commandes/statut")
-    public ResponseEntity<Object> changerStatutCommande(@RequestParam Integer commandeId,
-                                                      @RequestParam CommandStatus nouveauStatut) {
-        return adminService.changerStatutCommande(commandeId, nouveauStatut);
-    }
-
-    //Récupère les commandes d'un utilisateur
-    @GetMapping("/commandes/utilisateur")
-    public ResponseEntity<Object> getCommandesParUtilisateur(@RequestParam Integer utilisateurId) {
-        return adminService.getCommandesParUtilisateur(utilisateurId);
+        String response = adminService.deleteUtilisateurs(id);
+        return new ResponseEntity<>(
+                response,
+                response.startsWith("Success")
+                        ? HttpStatus.OK
+                        : HttpStatus.INTERNAL_SERVER_ERROR
+        );
     }
 
     @GetMapping("/commandes")
     public ResponseEntity<Object> getCommandes() {
-        return adminService.getAllCommandes();
+        List<CommandeDTO> response = adminService.getCommandes();
+        return response != null
+                ? new ResponseEntity<>(response, HttpStatus.OK)
+                : new ResponseEntity<>("Failed : Une erreur s'est produite lors de la recuperation des commandes", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @GetMapping("/commandes/{id}")
-    public ResponseEntity<Object> getCommandesById(@PathVariable int id) {
-        return adminService.getCommandeById(id);
+    public ResponseEntity<Object> getCommandeById(@PathVariable int id) {
+        CommandeDTO response = adminService.getCommandeById(id);
+        return response != null
+                ? new ResponseEntity<>(response, HttpStatus.OK)
+                : new ResponseEntity<>("Failed : Une erreur s'est produite lors de la recuperation des commandes", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @GetMapping("/commandes/utilisateurs/{id}")
+    public ResponseEntity<Object> getCommandesParUtilisateur(@PathVariable Integer id) {
+        List<CommandeDTO> response = adminService.getCommandesParUtilisateur(id);
+        return response != null
+                ? new ResponseEntity<>(response, HttpStatus.OK)
+                : new ResponseEntity<>("Failed : Une erreur s'est produite lors de la recuperation des commandes", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @GetMapping("/commandes/details/{commandId}")
+    public ResponseEntity<Object> getDetailsCommandes(@PathVariable Integer commandId) {
+        List<DetailsCommandeDTO> response = adminService.getDetailsByCommandId(commandId);
+        return response != null
+                ? new ResponseEntity<>(response, HttpStatus.OK)
+                : new ResponseEntity<>("Failed : Une erreur s'est produite lors de la recuperation des details", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    //Change le statut d'une commande
+    @PutMapping("/commandes/status/{commandeId}/{status}")
+    public ResponseEntity<Object> changerStatusCommande(@PathVariable Integer commandeId,
+                                                        @PathVariable CommandStatus status) {
+        String response = adminService.changerStatusCommande(commandeId, status);
+        return new ResponseEntity<>(
+                response,
+                response.startsWith("Success")
+                        ? HttpStatus.OK
+                        : HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
 
     // Récupérer tout l’inventaire
     @GetMapping("/inventaire")
     public ResponseEntity<Object> getTousInventaires() {
-        return inventaireService.getTousInventaires();
+        List<InventaireDTO> response = inventaireService.getTousInventaires();
+        return response != null
+                ? new ResponseEntity<>(response, HttpStatus.OK)
+                : new ResponseEntity<>("Failed : Une erreur s'est produite lors de la recuperation des stocks", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     //Récupérer l’inventaire d’un livre spécifique
     @GetMapping("/inventaire/{detailsLivreId}")
     public ResponseEntity<Object> getInventaireParLivre(@PathVariable int detailsLivreId) {
-        return inventaireService.getInventaireParLivre(detailsLivreId);
+        InventaireDTO response = inventaireService.getInventaireParLivre(detailsLivreId);
+        return response != null
+                ? new ResponseEntity<>(response, HttpStatus.OK)
+                : new ResponseEntity<>("Failed : Une erreur s'est produite lors de la recuperation des commandes", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     //Récupérer les articles avec un stock faible
     @GetMapping("/inventaire/faible-stock")
     public ResponseEntity<Object> getFaibleStock(@RequestParam int seuil) {
-        return inventaireService.getFaibleStock(seuil);
+        List<InventaireDTO> response = inventaireService.getFaibleStock(seuil);
+        return response != null
+                ? new ResponseEntity<>(response, HttpStatus.OK)
+                : new ResponseEntity<>("Failed : Une erreur s'est produite lors de la recuperation des commandes", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     //Ajouter un nouvel article en stock
     @PostMapping("/inventaire")
     public ResponseEntity<Object> ajouterStock(@RequestBody InventaireDTO inventaireDTO) {
-        return inventaireService.ajouterStock(inventaireDTO);
+        String response = inventaireService.ajouterStock(inventaireDTO);
+        return new ResponseEntity<>(
+                response,
+                response.startsWith("Success")
+                        ? HttpStatus.CREATED
+                        : HttpStatus.INTERNAL_SERVER_ERROR
+        );
     }
 
     //Modifier le stock d’un livre (augmenter ou diminuer)
     @PutMapping("/inventaire")
     public ResponseEntity<Object> modifierStock(@RequestBody InventaireDTO inventaireDTO) {
-        return inventaireService.modifierStock(inventaireDTO);
+        String response = inventaireService.modifierStock(inventaireDTO);
+        return new ResponseEntity<>(
+                response,
+                response.startsWith("Success")
+                        ? HttpStatus.OK
+                        : HttpStatus.INTERNAL_SERVER_ERROR
+        );
     }
 
     //Supprimer un stock
     @DeleteMapping("/inventaire/{detailsLivreId}")
     public ResponseEntity<Object> supprimerStock(@PathVariable int detailsLivreId) {
-        return inventaireService.supprimerStock(detailsLivreId);
+        String response = inventaireService.supprimerStock(detailsLivreId);
+        return new ResponseEntity<>(
+                response,
+                response.startsWith("Success")
+                        ? HttpStatus.OK
+                        : HttpStatus.INTERNAL_SERVER_ERROR
+        );
     }
 
 
     @GetMapping("/paiement")
-    public ResponseEntity<Object> getPaiements(){
-        return adminService.getPaiements();
+    public ResponseEntity<Object> getPaiements() {
+        List<PaiementDTO> reponse = adminService.getPaiements();
+        return reponse != null
+                ? new ResponseEntity<>(reponse, HttpStatus.OK)
+                : new ResponseEntity<>("Failed : Une erreur s'est produite lors de la recuperation des paiements", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }

@@ -1,70 +1,64 @@
 package com.ucad.m2SIR.SenBook.service;
 
-import com.ucad.m2SIR.SenBook.dto.AuteurDTO;
 import com.ucad.m2SIR.SenBook.model.Auteur;
-import com.ucad.m2SIR.SenBook.model.LivresAuteur;
 import com.ucad.m2SIR.SenBook.repository.AuteurRepository;
-import com.ucad.m2SIR.SenBook.repository.LivresAuteurRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.time.Instant;
 import java.util.List;
 
 @Service
 @Transactional
 public class AuteurService {
-
     private final AuteurRepository auteurRepository;
-    private final LivresAuteurRepository livresAuteurRepository;
 
 
-    public AuteurService(AuteurRepository auteurRepository, LivresAuteurRepository livresAuteurRepository) {
+    public AuteurService(AuteurRepository auteurRepository) {
         this.auteurRepository = auteurRepository;
-        this.livresAuteurRepository = livresAuteurRepository;
     }
 
-    public ResponseEntity<Object> createAuteur(AuteurDTO auteurDTO){
-        Auteur auteur = auteurRepository.save(auteurDTO.getAuteur());
-        if(auteur.getId() != null)
-            return new ResponseEntity<>(HttpStatus.CREATED);
-
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    public String createAuteur(Auteur auteur) {
+        auteur.setCreeLe(Instant.now());
+        Auteur response = auteurRepository.save(auteur);
+        return response.getId() != null
+                ? "Success : L'auteur a été créé avec succés"
+                : "Failed : Une erreur est survenue lors de la création de l'auteur";
     }
 
-    public ResponseEntity<Object> removeAuteur(int auteurId){
+    public String removeAuteur(int auteurId) {
         auteurRepository.deleteById(auteurId);
-        return new ResponseEntity<>(auteurRepository.existsById(auteurId) ? HttpStatus.INTERNAL_SERVER_ERROR : HttpStatus.OK);
+        return !auteurRepository.existsById(auteurId)
+                ? "Success : L'auteur a été supprimé correctement"
+                : "Failed : Une erreur est survenue lors de la suppression de l'auteur";
     }
 
-    public ResponseEntity<Object> updateAuteur(AuteurDTO auteurDTO){
-        return new ResponseEntity<>(auteurRepository.save(auteurDTO.getAuteur()),HttpStatus.OK);
-    }
-
-    public ResponseEntity<Object> getAuteurs(){
-        return new ResponseEntity<>(auteurRepository.findAll(),HttpStatus.OK);
-    }
-
-    public ResponseEntity<Object> getAuteurById(int id){
-        return new ResponseEntity<>(auteurRepository.findById(id).orElse(null),HttpStatus.OK);
-    }
-
-    public ResponseEntity<Object> getAuteurByNom(String nom){
-       return new ResponseEntity<>(auteurRepository.findByNomContaining(nom), HttpStatus.OK);
-    }
-
-    public ResponseEntity<Object> getAuteursByPays(String pays){
-        return new ResponseEntity<>(auteurRepository.findAllByPays(pays), HttpStatus.OK);
-    }
-
-    public List<Auteur> getAuteursByBookId(int bookId) {
-        List<LivresAuteur> livresAuteurs = livresAuteurRepository.findAllByLivre_Id(bookId);
-        List <Auteur> auteurs = new ArrayList<>();
-        for (LivresAuteur la : livresAuteurs) {
-            auteurs.add(la.getAuteur());
+    public String updateAuteur(Auteur aut) {
+        Auteur auteur = auteurRepository.findById(aut.getId()).orElse(null);
+        Auteur response = null;
+        if(auteur!= null) {
+            auteur.setPays(aut.getPays());
+            auteur.setNom(aut.getNom());
+            auteur.setBiographie(aut.getBiographie());
+            auteur.setDateNaissance(aut.getDateNaissance());
+            response = auteurRepository.save(auteur);
         }
-        return auteurs;
+        return response != null
+                ? "Success : Auteur a été mis a jour correctement"
+                : "Failed : Une erreur est survenue lors de la mise a jour de l'auteur";
+
     }
+
+    public List<Auteur> getAuteurs() {
+        return auteurRepository.findAll();
+    }
+
+    public Auteur getAuteurById(int id) {
+        return auteurRepository.findById(id).orElse(null);
+    }
+
+    public List<Auteur> getAuteurByNom(String nom) {
+        return auteurRepository.findByNomContaining(nom);
+    }
+
 }

@@ -3,28 +3,28 @@ package com.ucad.m2SIR.SenBook.dto;
 import com.ucad.m2SIR.SenBook.model.Inventaire;
 
 public class InventaireDTO {
-    private int detailLivreId;
+    private DetailsLivreDTO detailLivre;
     private int quantite;
 
     public InventaireDTO() {
     }
 
-    public InventaireDTO(int detailLivreId, int quantite) {
-        this.detailLivreId = detailLivreId;
+    public InventaireDTO(DetailsLivreDTO detailLivre, int quantite) {
+        this.detailLivre = detailLivre;
         this.quantite = quantite;
     }
 
     public InventaireDTO(Inventaire inventaire) {
-        this.detailLivreId = inventaire.getDetailLivre().getId();
+        this.detailLivre = new DetailsLivreDTO(inventaire.getDetailLivre());
         this.quantite = inventaire.getQuantite();
     }
 
-    public int getDetailLivreId() {
-        return detailLivreId;
+    public DetailsLivreDTO getDetailLivre() {
+        return detailLivre;
     }
 
-    public void setDetailLivreId(int detailLivreId) {
-        this.detailLivreId = detailLivreId;
+    public void setDetailLivre(DetailsLivreDTO detailLivre) {
+        this.detailLivre = detailLivre;
     }
 
     public int getQuantite() {

@@ -5,9 +5,9 @@ import com.ucad.m2SIR.SenBook.dto.*;
 import com.ucad.m2SIR.SenBook.model.*;
 import com.ucad.m2SIR.SenBook.repository.*;
 import jakarta.transaction.Transactional;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 
 @Service
@@ -40,112 +40,126 @@ public class AdminService {
     }
 
 
-    public ResponseEntity<Object> createAuteur(AuteurDTO auteurDTO){
-        return auteurService.createAuteur(auteurDTO);
+    public String createAuteur(Auteur auteur) {
+        return auteurService.createAuteur(auteur);
     }
 
-    public ResponseEntity<Object> removeAuteur(int auteurId){
+    public String updateAuteur(Auteur auteur) {
+        return auteurService.updateAuteur(auteur);
+    }
+
+    public String removeAuteur(int auteurId) {
         return auteurService.removeAuteur(auteurId);
     }
 
-    public ResponseEntity<Object> getAuteurs(){
+    public List<Auteur> getAuteurs() {
         return auteurService.getAuteurs();
     }
 
-    public ResponseEntity<Object> getAuteurById(int auteurId){
+    public Auteur getAuteurById(int auteurId) {
         return auteurService.getAuteurById(auteurId);
     }
 
-    public ResponseEntity<Object> getAuteurByNom(String nom){
+    public List<Auteur> getAuteurByNom(String nom) {
         return auteurService.getAuteurByNom(nom);
     }
 
-    public ResponseEntity<Object> createLivre(LivreDTO livreDTO) {
+    public String createLivre(LivreDTO livreDTO) {
         Livre livre = livreRepository.save(livreDTO.getLivre());
         LivresAuteur livresAuteur = new LivresAuteur();
         LivresAuteurId livresAuteurId = new LivresAuteurId();
         if (livre.getId() != null) {
             livresAuteurId.setIdLivre(livre.getId());
-            for(Auteur auteur : livreDTO.getAuteurs()){
+            for (Integer auteurId : livreDTO.getAuteurIds()) {
+                Auteur auteur = auteurService.getAuteurById(auteurId);
                 livresAuteurId.setIdAuteur(auteur.getId());
                 livresAuteur.setId(livresAuteurId);
                 livresAuteur.setAuteur(auteur);
                 livresAuteur.setLivre(livre);
                 livresAuteurRepository.save(livresAuteur);
             }
-            return new ResponseEntity<>("Le livre a été créé avec succés", HttpStatus.CREATED);
+            return "Success : Livre créé avec succés";
         }
 
-        return new ResponseEntity<>("Le livre n'a pas pu être enregistré",HttpStatus.INTERNAL_SERVER_ERROR);
+        return "Failed : Une erreur est survenue lors de la creation du livre";
     }
 
     @Transactional
-    public ResponseEntity<Object> removeLivre(int livreId){
-        if(livreRepository.existsById(livreId)) {
+    public String removeLivre(int livreId) {
+        if (livreRepository.existsById(livreId)) {
             livreRepository.deleteById(livreId);
             livresAuteurRepository.deleteAllByLivreId(livreId);
-            return new ResponseEntity<>("Le livre a été supprimé avec succés",HttpStatus.OK);
+            return "Success : Livre supprimé avec succés";
         }
-        return new ResponseEntity<>("Erreur lors de la suppression",HttpStatus.INTERNAL_SERVER_ERROR);
+        return "Failed : Une erreur est survenue lors de la suppression";
     }
 
-    public ResponseEntity<Object> createDetailLivre(DetailLivreDTO detailLivre){
+    public String createDetailLivre(DetailsLivreDTO detailLivre) {
         return detailLivreService.createDetailLivre(detailLivre);
     }
 
-    public ResponseEntity<Object> removeDetailsLivre(int detailLivreId){
+    public String removeDetailsLivre(int detailLivreId) {
         return detailLivreService.removeDetailsLivre(detailLivreId);
     }
 
-    public ResponseEntity<Object> getUtilisateurs(){
-        return new ResponseEntity<>(utilisateurService.getUtilisateurs(),HttpStatus.OK);
+    public List<UtilisateurDTO> getUtilisateurs() {
+        return utilisateurService.getUtilisateurs();
     }
 
-    public ResponseEntity<Object> deleteUtilisateurs(int id){
-        return  new ResponseEntity<>(utilisateurService.deleteUtilisateur(id),HttpStatus.OK);
+    public String deleteUtilisateurs(int id) {
+        return utilisateurService.deleteUtilisateur(id);
     }
 
-    // Change le statut d'une commande
+    // Change le status d'une commande
     @Transactional
-    public ResponseEntity<Object> changerStatutCommande(Integer commandeId, CommandStatus nouveauStatut) {
+    public String changerStatusCommande(Integer commandeId, CommandStatus nouveauStatus) {
         Commande commande = commandeRepository.findById(commandeId).orElse(null);
-        if(commande == null)
-            return new ResponseEntity<>("Commande introuvable",HttpStatus.NOT_FOUND);
 
-        commande.setStatut(nouveauStatut);
-        if(commandeRepository.save(commande).getId() !=null)
-            return new ResponseEntity<>("Success",HttpStatus.OK);
-        return new ResponseEntity<>("Erreur lors du changement de Status",HttpStatus.INTERNAL_SERVER_ERROR);
+        if (commande == null)
+            return "Failed : Commande introuvable";
+        System.out.println(commande.getStatus());
+        commande.setStatus(nouveauStatus);
+        Commande response = commandeRepository.save(commande);
+        System.out.println(response.getStatus());
+        if (response.getId() != null)
+            return "Success : Le status a été correctement changé";
+        return "Failed : Une erreur est survenue lors du changement de status";
     }
 
     // Récupère toutes les commandes d'un utilisateur
-    public ResponseEntity<Object> getCommandesParUtilisateur(int idUser) {
+    public List<CommandeDTO> getCommandesParUtilisateur(int idUser) {
         Utilisateur utilisateur = utilisateurService.getUtilisateurById(idUser);
-        return new ResponseEntity<>(commandeRepository.findByUtilisateur(utilisateur),HttpStatus.OK);
+        return commandeRepository.findByUtilisateur(utilisateur)
+                .stream()
+                .map(CommandeDTO::new)
+                .toList();
     }
 
-    public ResponseEntity<Object> getAllCommandes(){
-        return new ResponseEntity<>(detailsCommandeRepository.findAll()
+    public List<CommandeDTO> getCommandes() {
+        return commandeRepository.findAll()
+                .stream()
+                .map(CommandeDTO::new)
+                .toList();
+    }
+
+    public List<DetailsCommandeDTO> getDetailsByCommandId(int commandId) {
+        return detailsCommandeRepository.findAllByCommandeId(commandId)
                 .stream()
                 .map(DetailsCommandeDTO::new)
-                .toList(),HttpStatus.OK);
+                .toList();
     }
 
-    public ResponseEntity<Object> getCommandeById(int commandId){
+    public CommandeDTO getCommandeById(int commandId) {
         Commande commande = commandeRepository.findById(commandId).orElse(null);
-        return new ResponseEntity<>(detailsCommandeRepository.findAllByCommande(commande)
-                .stream()
-                .map(DetailsCommandeDTO::new)
-                .toList(),HttpStatus.OK);
+        return commande != null ? new CommandeDTO(commande) : null;
     }
 
-    public ResponseEntity<Object> getPaiements(){
-        return new ResponseEntity<>(paiementRepository
+    public List<PaiementDTO> getPaiements() {
+        return paiementRepository
                 .findAll()
-                    .stream()
-                    .map(PaiementDTO::new)
-                    .toList()
-                ,HttpStatus.OK);
+                .stream()
+                .map(PaiementDTO::new)
+                .toList();
     }
 
 }

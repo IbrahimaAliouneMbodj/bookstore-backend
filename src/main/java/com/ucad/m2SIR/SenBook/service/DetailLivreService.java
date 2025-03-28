@@ -1,13 +1,11 @@
 package com.ucad.m2SIR.SenBook.service;
 
-import com.ucad.m2SIR.SenBook.dto.DetailLivreDTO;
+import com.ucad.m2SIR.SenBook.dto.DetailsLivreDTO;
 import com.ucad.m2SIR.SenBook.model.DetailsLivre;
 import com.ucad.m2SIR.SenBook.model.Livre;
 import com.ucad.m2SIR.SenBook.repository.DetailsLivreRepository;
 import com.ucad.m2SIR.SenBook.repository.LivreRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -18,33 +16,32 @@ public class DetailLivreService {
     private final DetailsLivreRepository detailsLivreRepository;
     private final LivreRepository livreRepository;
 
-    public DetailLivreService(DetailsLivreRepository detailsLivreRepository, LivreRepository livreRepository) {
+    public DetailLivreService(DetailsLivreRepository detailsLivreRepository,
+                              LivreRepository livreRepository) {
         this.detailsLivreRepository = detailsLivreRepository;
         this.livreRepository = livreRepository;
     }
 
-    public ResponseEntity<Object> createDetailLivre(DetailLivreDTO detailLivre){
+    public String createDetailLivre(DetailsLivreDTO detailLivre) {
         Optional<Livre> livre = livreRepository.findById(detailLivre.getIdLivre());
-        if(livre.isPresent()){
+        if (livre.isPresent()) {
             DetailsLivre details = new DetailsLivre();
             details.setLivre(livre.get());
             details.setLangue(detailLivre.getLangue());
             details.setFormat(detailLivre.getFormat());
             details.setPrixUnitaire(detailLivre.getPrixUnitaire());
-            if(detailsLivreRepository.save(details).getId() != null) {
-                return new ResponseEntity<>("Detail cree avec succés",HttpStatus.CREATED);
+            if (detailsLivreRepository.save(details).getId() != null) {
+                return "Success : Details du livre ajouté avec succés";
             }
         }
-        return new ResponseEntity<>("Erreur lors de la creation",HttpStatus.INTERNAL_SERVER_ERROR);
+        return "Failed : Une erreur est survenue lors de l'ajout des details du livre";
     }
 
-    public ResponseEntity<Object> removeDetailsLivre(int livreId){
-        if(detailsLivreRepository.existsById(livreId)) {
+    public String removeDetailsLivre(int livreId) {
+        if (detailsLivreRepository.existsById(livreId)) {
             detailsLivreRepository.deleteById(livreId);
-            return new ResponseEntity<>("Supprimé avec succés",HttpStatus.OK);
+            return "Success : Les details du livre sont correctement supprimé";
         }
-        return new ResponseEntity<>("Erreur lors de la suppression",HttpStatus.INTERNAL_SERVER_ERROR);
+        return "Failed : Une erreur est survenue lors de la suppression des details";
     }
-
-
 }

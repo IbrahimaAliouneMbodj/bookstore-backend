@@ -1,10 +1,10 @@
 package com.ucad.m2SIR.SenBook.controller;
 
+import com.ucad.m2SIR.SenBook.dto.CommandeDTO;
 import com.ucad.m2SIR.SenBook.dto.DetailsCommandeDTO;
 import com.ucad.m2SIR.SenBook.dto.PaiementDTO;
-import com.ucad.m2SIR.SenBook.model.Commande;
-import com.ucad.m2SIR.SenBook.model.Paiement;
 import com.ucad.m2SIR.SenBook.service.CommandeService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,27 +23,49 @@ public class CommandeController {
     //Crée une nouvelle commande
     @PostMapping("/creer")
     public ResponseEntity<Object> creerCommande(@RequestParam Integer utilisateurId,
-                                                  @RequestBody List<DetailsCommandeDTO> details) {
-        return commandeService.creerCommande(utilisateurId, details);
+                                                @RequestBody List<DetailsCommandeDTO> details) {
+        String response = commandeService.creerCommande(utilisateurId, details);
+        return new ResponseEntity<>(
+                response,
+                response.startsWith("Success")
+                        ? HttpStatus.CREATED
+                        : HttpStatus.INTERNAL_SERVER_ERROR
+        );
     }
 
     //Effectue un paiement pour une commande
     @PostMapping("/paiement")
     public ResponseEntity<Object> effectuerPaiement(@RequestBody PaiementDTO paiementDTO) {
-        return commandeService.effectuerPaiement(paiementDTO);
+        String response = commandeService.effectuerPaiement(paiementDTO);
+        return new ResponseEntity<>(
+                response,
+                response.startsWith("Success")
+                        ? HttpStatus.OK
+                        : HttpStatus.INTERNAL_SERVER_ERROR
+        );
     }
 
     //Annule une commande
-    @PostMapping("/annuler")
-    public ResponseEntity<Object> annulerCommande(@RequestParam Integer commandeId) {
-        commandeService.annulerCommande(commandeId);
-        return ResponseEntity.ok().build();
+    @PostMapping("/annuler/{commandeId}")
+    public ResponseEntity<Object> annulerCommande(@PathVariable Integer commandeId) {
+        String response = commandeService.annulerCommande(commandeId);
+        return new ResponseEntity<>(
+                response,
+                response.startsWith("Success")
+                        ? HttpStatus.OK
+                        : HttpStatus.INTERNAL_SERVER_ERROR
+        );
     }
 
 
     //Récupère les commandes de l'utilisateur
     @GetMapping
     public ResponseEntity<Object> getCommandes(@RequestParam Integer utilisateurId) {
-        return commandeService.getCommandes(utilisateurId);
+        List<CommandeDTO> response = commandeService.getCommandes(utilisateurId);
+        return response != null
+                ? new ResponseEntity<>(response, HttpStatus.OK)
+                : new ResponseEntity<>(
+                "Failed : Une erreur s'est produite lors de la recuperation des commandes",
+                HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
