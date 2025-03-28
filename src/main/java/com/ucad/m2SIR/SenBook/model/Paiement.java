@@ -53,7 +53,7 @@ public class Paiement {
         return commande;
     }
 
-    public void setCommande(Commande idCommande) {
+    public void setCommande(Commande commande) {
         this.commande = commande;
     }
 

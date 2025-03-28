@@ -68,11 +68,11 @@ public class Commande {
         this.prixTotal = prixTotal;
     }
 
-    public CommandStatus getStatut() {
+    public CommandStatus getStatus() {
         return status;
     }
 
-    public void setStatut(CommandStatus status) {
+    public void setStatus(CommandStatus status) {
         this.status = status;
     }
 

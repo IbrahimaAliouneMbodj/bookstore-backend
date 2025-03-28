@@ -17,7 +17,7 @@ public class DetailsLivre {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "id_livre", nullable = false)
     private com.ucad.m2SIR.SenBook.model.Livre livre;
