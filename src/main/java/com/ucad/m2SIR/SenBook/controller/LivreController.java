@@ -32,7 +32,7 @@ public class LivreController {
                 : new ResponseEntity<>("Failed : Une erreur s'est produite lors de l'execution", HttpStatus.INTERNAL_SERVER_ERROR);
     }
     // Récupérer les livres par genre
-    @GetMapping("/genre/{gemre}")
+    @GetMapping("/genre/{genre}")
     public ResponseEntity<Object> getLivreByGenre(@PathVariable String genre) {
         List<Livre> livres = livreService.getLivreByGenre(genre);
         return livres != null

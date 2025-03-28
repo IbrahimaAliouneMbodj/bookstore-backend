@@ -6,12 +6,14 @@ import com.ucad.m2SIR.SenBook.dto.PaiementDTO;
 import com.ucad.m2SIR.SenBook.service.CommandeService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/commandes")
+@PreAuthorize("hasAuthority('CLIENT')")
 public class CommandeController {
 
     private final CommandeService commandeService;
@@ -22,9 +24,8 @@ public class CommandeController {
 
     //Crée une nouvelle commande
     @PostMapping("/creer")
-    public ResponseEntity<Object> creerCommande(@RequestParam Integer utilisateurId,
-                                                @RequestBody List<DetailsCommandeDTO> details) {
-        String response = commandeService.creerCommande(utilisateurId, details);
+    public ResponseEntity<Object> creerCommande(@RequestBody List<DetailsCommandeDTO> details) {
+        String response = commandeService.creerCommande(details);
         return new ResponseEntity<>(
                 response,
                 response.startsWith("Success")
@@ -60,8 +61,8 @@ public class CommandeController {
 
     //Récupère les commandes de l'utilisateur
     @GetMapping
-    public ResponseEntity<Object> getCommandes(@RequestParam Integer utilisateurId) {
-        List<CommandeDTO> response = commandeService.getCommandes(utilisateurId);
+    public ResponseEntity<Object> getCommandes() {
+        List<CommandeDTO> response = commandeService.getCommandes();
         return response != null
                 ? new ResponseEntity<>(response, HttpStatus.OK)
                 : new ResponseEntity<>(

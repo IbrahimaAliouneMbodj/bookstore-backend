@@ -4,12 +4,14 @@ import com.ucad.m2SIR.SenBook.dto.PanierDTO;
 import com.ucad.m2SIR.SenBook.service.PanierService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/panier")
+@PreAuthorize("hasAuthority('CLIENT')")
 public class PanierController {
     private final PanierService panierService;
 
@@ -18,16 +20,16 @@ public class PanierController {
     }
 
     @GetMapping
-    public ResponseEntity<Object> getPanier(@RequestParam int userId) {
-        List<PanierDTO> response = panierService.getPanier(userId);
+    public ResponseEntity<Object> getPanier() {
+        List<PanierDTO> response = panierService.getPanier();
         return response != null
                 ? new ResponseEntity<>(response, HttpStatus.OK)
                 : new ResponseEntity<>("Failed : Erreur lors de la recuperation du panier", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @PostMapping("/add/{detailsLivreId}")
-    public ResponseEntity<Object> addToPanier(@PathVariable int detailsLivreId, @RequestParam int quantite,@RequestParam int userId) {
-        String response = panierService.addToPanier(detailsLivreId, userId, quantite);
+    @PostMapping("/add/{detailsLivreId}/{quantite}")
+    public ResponseEntity<Object> addToPanier(@PathVariable int detailsLivreId, @PathVariable int quantite) {
+        String response = panierService.addToPanier(detailsLivreId, quantite);
         return new ResponseEntity<>(
                 response,
                 response.startsWith("Success")
@@ -37,8 +39,8 @@ public class PanierController {
     }
 
     @DeleteMapping("/clear")
-    public ResponseEntity<String> ClearPanier(@RequestParam int userId) {
-        String response = panierService.clearPanier(userId);
+    public ResponseEntity<String> ClearPanier() {
+        String response = panierService.clearPanier();
         return new ResponseEntity<>(
                 response,
                 response.startsWith("Success")
@@ -47,9 +49,9 @@ public class PanierController {
         );
     }
 
-    @DeleteMapping("/{livreId}")
-    public ResponseEntity<String> removeFromPanier(@PathVariable int livreId, @RequestParam int userId) {
-        String response = panierService.removeFromPanier(livreId, userId);
+    @DeleteMapping("/{detailsLivreId}")
+    public ResponseEntity<String> removeFromPanier(@PathVariable int detailsLivreId) {
+        String response = panierService.removeFromPanier(detailsLivreId);
         return new ResponseEntity<>(
                 response,
                 response.startsWith("Success")

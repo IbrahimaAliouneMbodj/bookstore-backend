@@ -21,30 +21,29 @@ public class CommandeService {
     private final CommandeRepository commandeRepository;
     private final DetailsCommandeRepository detailsCommandeRepository;
     private final InventaireRepository inventaireRepository;
-    private final UtilisateurRepository utilisateurRepository;
     private final DetailsLivreRepository detailsLivreRepository;
     private final PaiementRepository paiementRepository;
+    private final ClientService clientService;
 
     public CommandeService(CommandeRepository commandeRepository,
                            DetailsCommandeRepository detailsCommandeRepository,
                            InventaireRepository inventaireRepository,
-                           UtilisateurRepository utilisateurRepository,
                            DetailsLivreRepository detailsLivreRepository,
-                           PaiementRepository paiementRepository) {
+                           PaiementRepository paiementRepository, ClientService clientService) {
         this.commandeRepository = commandeRepository;
         this.detailsCommandeRepository = detailsCommandeRepository;
         this.inventaireRepository = inventaireRepository;
-        this.utilisateurRepository = utilisateurRepository;
         this.detailsLivreRepository = detailsLivreRepository;
         this.paiementRepository = paiementRepository;
+        this.clientService = clientService;
     }
 
 
     // Crée une nouvelle commande pour un utilisateur.
-    public String creerCommande(Integer utilisateurId, List<DetailsCommandeDTO> details) {
-        Utilisateur utilisateur = utilisateurRepository.findById(utilisateurId).orElse(null);
+    public String creerCommande(List<DetailsCommandeDTO> details) {
+        Utilisateur utilisateur = clientService.getCurrentUser();
         if (utilisateur == null)
-            return "Failed : Utilisateur introuvable";
+            return "Failed : Une erreur est survenue";
 
         Commande commande = new Commande();
         commande.setUtilisateur(utilisateur);
@@ -78,7 +77,11 @@ public class CommandeService {
             detailsCommande.setQuantite(detailDTO.getQuantite());
             detailsCommandeRepository.save(detailsCommande);
 
-            prixTotal = prixTotal.add(detailsLivre.getPrixUnitaire().multiply(BigDecimal.valueOf(detailDTO.getQuantite())));
+            prixTotal = prixTotal.add(
+                    detailsLivre
+                            .getPrixUnitaire()
+                            .multiply(BigDecimal.valueOf(detailDTO.getQuantite()))
+            );
         }
 
         commande.setPrixTotal(prixTotal);
@@ -112,8 +115,8 @@ public class CommandeService {
     }
 
     // Récupère toutes les commandes d'un utilisateur
-    public List<CommandeDTO> getCommandes(Integer utilisateurId) {
-        Utilisateur utilisateur = utilisateurRepository.findById(utilisateurId).orElse(null);
+    public List<CommandeDTO> getCommandes() {
+        Utilisateur utilisateur = clientService.getCurrentUser();
 
         if (utilisateur == null)
             return null;

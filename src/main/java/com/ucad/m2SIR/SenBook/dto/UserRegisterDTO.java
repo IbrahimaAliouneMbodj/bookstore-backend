@@ -1,30 +1,27 @@
 package com.ucad.m2SIR.SenBook.dto;
 
-import com.ucad.m2SIR.SenBook.customTypes.UserRole;
-
-
 public class UserRegisterDTO {
-    private String nomUtilisateur;
+    private String username;
     private String email;
-    private String motDePasse;
+    private String password;
 
 
     public UserRegisterDTO() {
     }
 
-    public UserRegisterDTO(String nomUtilisateur, String email, String motDePasse) {
-        this.nomUtilisateur = nomUtilisateur;
+    public UserRegisterDTO(String username, String email, String password) {
+        this.username = username;
         this.email = email;
-        this.motDePasse = motDePasse;
+        this.password = password;
 
     }
 
-    public String getNomUtilisateur() {
-        return nomUtilisateur;
+    public String getUsername() {
+        return username;
     }
 
-    public void setNomUtilisateur(String nomUtilisateur) {
-        this.nomUtilisateur = nomUtilisateur;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getEmail() {
@@ -35,12 +32,12 @@ public class UserRegisterDTO {
         this.email = email;
     }
 
-    public String getMotDePasse() {
-        return motDePasse;
+    public String getPassword() {
+        return password;
     }
 
-    public void setMotDePasse(String motDePasse) {
-        this.motDePasse = motDePasse;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
 }

@@ -9,6 +9,4 @@ import java.util.List;
 @Repository
 public interface AuteurRepository extends JpaRepository<Auteur, Integer> {
     List<Auteur> findByNomContaining(String nom);
-
-    List<Auteur> findAllByPays(String pays);
 }

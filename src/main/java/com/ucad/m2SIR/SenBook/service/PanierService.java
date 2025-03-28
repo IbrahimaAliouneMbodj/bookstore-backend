@@ -18,29 +18,29 @@ public class PanierService {
 
     private final DetailsLivreRepository detailsLivreRepository;
     private final PanierRepository panierRepository;
-    private final UtilisateurRepository utilisateurRepository;
+    private final ClientService clientService;
     private final InventaireRepository inventaireRepository;
 
     public PanierService(DetailsLivreRepository detailsLivreRepository,
-                         PanierRepository panierRepository,
-                         UtilisateurRepository utilisateurRepository, InventaireRepository inventaireRepository) {
+                         PanierRepository panierRepository, ClientService clientService,
+                         InventaireRepository inventaireRepository) {
         this.detailsLivreRepository = detailsLivreRepository;
         this.panierRepository = panierRepository;
-        this.utilisateurRepository = utilisateurRepository;
+        this.clientService = clientService;
         this.inventaireRepository = inventaireRepository;
     }
 
-    public List<PanierDTO> getPanier(int idUser) {
+    public List<PanierDTO> getPanier() {
         List<PanierDTO> detailsLivres = new ArrayList<>();
-        for (Panier panier : panierRepository.findAllByUtilisateurId(idUser)) {
+        for (Panier panier : panierRepository.findAllByUtilisateurId(clientService.getCurrentUser().getId())) {
             detailsLivres.add(new PanierDTO(panier));
         }
         return detailsLivres;
     }
 
     @Transactional
-    public String addToPanier(int livreId, int userId, int quantite) {
-        Utilisateur user = utilisateurRepository.findById(userId).orElse(null);
+    public String addToPanier(int livreId,int quantite) {
+        Utilisateur user = clientService.getCurrentUser();
         DetailsLivre livre = detailsLivreRepository.findByLivreId(livreId).orElse(null);
         if (user != null && livre != null) {
             Inventaire inventaire = inventaireRepository.findByDetailLivre(livre).orElse(null);
@@ -61,8 +61,8 @@ public class PanierService {
     }
 
     @Transactional
-    public String clearPanier(int userId) {
-        Utilisateur user = utilisateurRepository.findById(userId).orElse(null);
+    public String clearPanier() {
+        Utilisateur user = clientService.getCurrentUser();
         if (user != null) {
             panierRepository.deleteAllByUtilisateur(user);
             if (!panierRepository.existsByUtilisateur(user)) {
@@ -73,8 +73,8 @@ public class PanierService {
     }
 
     @Transactional
-    public String removeFromPanier(int livreId, int userId) {
-        Utilisateur user = utilisateurRepository.findById(userId).orElse(null);
+    public String removeFromPanier(int livreId) {
+        Utilisateur user = clientService.getCurrentUser();
         DetailsLivre livre = detailsLivreRepository.findByLivreId(livreId).orElse(null);
         if (user != null && livre != null) {
             panierRepository.deleteAllByUtilisateurAndDetailLivre(user, livre);
