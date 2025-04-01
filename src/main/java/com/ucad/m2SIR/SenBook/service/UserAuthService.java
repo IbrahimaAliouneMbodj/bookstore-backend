@@ -46,13 +46,24 @@ public class UserAuthService implements UserDetailsService {
         throw new UsernameNotFoundException("Username Not Found!");
     }
 
-    public boolean saveUtilisateur(UserRegisterDTO userDto) {
-        if (userDto.getPassword().trim().length() > 8) {
-            userDto.setPassword(passwordConfig.getEncoder().encode(userDto.getPassword()));
-            Utilisateur user = utilisateurRepository.save(convertUserRegisterDtoToEntity(userDto));
-            return user.getId() != null;
+    public String saveUtilisateur(UserRegisterDTO userDto) {
+        String response = "";
+        if (userDto.getPassword().trim().length() < 8)
+            response = "Failed : Le mot de passe doit avoir au minimum 8 caractères";
+        if (userDto.getUsername().trim().length() < 4)
+            response = "Failed : Le nom d'utilisateur doit avoir au minimum 4 caractères";
+        if (response.trim().isEmpty()) {
+            response = "Failed : Le nom d'utilisateur ou l'email specifé existe déja";
+            if (!utilisateurRepository.existsByNomUtilisateur(userDto.getUsername())
+                    && !utilisateurRepository.existsByEmail(userDto.getEmail())) {
+                userDto.setPassword(passwordConfig.getEncoder().encode(userDto.getPassword()));
+                Utilisateur user = utilisateurRepository.save(convertUserRegisterDtoToEntity(userDto));
+                response = user.getId() != null
+                        ? "Success : Inscription reussie"
+                        : "Failed : Une erreur s'est produite lors de l'enregistrement des informations";
+            }
         }
-        return false;
+        return response;
     }
 
     private Utilisateur convertUserRegisterDtoToEntity(UserRegisterDTO userDto) {

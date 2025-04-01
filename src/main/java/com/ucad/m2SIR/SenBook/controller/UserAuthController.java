@@ -37,14 +37,13 @@ public class UserAuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> connection(@RequestBody UserLoginDTO user){
+    public ResponseEntity<String> connection(@RequestBody UserLoginDTO user) {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword());
         Authentication auth = authenticationManager.authenticate(token);
         boolean status = auth.isAuthenticated();
         Optional<Utilisateur> fullUser = utilisateurRepository.findByNomUtilisateur(user.getUsername());
 
-        if(status && fullUser.isPresent())
-        {
+        if (status && fullUser.isPresent()) {
             String jwtToken = jwtService.generateToken(user.getUsername());
             Token tokenObj = new Token();
             tokenObj.setUtilisateur(fullUser.get());
@@ -56,17 +55,15 @@ public class UserAuthController {
             tokenRepository.save(tokenObj);
             return new ResponseEntity<>(jwtToken, HttpStatus.OK);
         }
-        return  new ResponseEntity<>("failed", HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>("Failed : Impossible d'authentifer l'utilisateur donné", HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> inscription(@RequestBody UserRegisterDTO user){
-        boolean status = userAuthService.saveUtilisateur(user);
-        if(status)
-        {
-            return new ResponseEntity<>("success", HttpStatus.CREATED);
-        }else{
-            return new ResponseEntity<>("failed", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public ResponseEntity<String> inscription(@RequestBody UserRegisterDTO user) {
+        String response = userAuthService.saveUtilisateur(user);
+        HttpStatus status = response.startsWith("Success")
+                ? HttpStatus.CREATED
+                : HttpStatus.INTERNAL_SERVER_ERROR;
+        return new ResponseEntity<>(response, status);
     }
 }
