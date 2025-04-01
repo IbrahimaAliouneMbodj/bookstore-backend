@@ -12,9 +12,11 @@ import java.util.List;
 @RequestMapping("/api/livres")
 public class LivreController {
     private final LivreService livreService;
+
     public LivreController(LivreService livreService) {
         this.livreService = livreService;
     }
+
     @GetMapping
     // Récupérer la liste de tous les livres
     public ResponseEntity<Object> getAllLivre() {
@@ -23,14 +25,16 @@ public class LivreController {
                 ? new ResponseEntity<>(livres, HttpStatus.OK)
                 : new ResponseEntity<>("Failed : Une erreur s'est produite lors de l'execution", HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
     // Récupérer les détails d'un livre par son ID
     @GetMapping("/{id}")
     public ResponseEntity<Object> getLivreById(@PathVariable int id) {
         Livre livre = livreService.getLivre(id);
         return livre != null
                 ? new ResponseEntity<>(livre, HttpStatus.OK)
-                : new ResponseEntity<>("Failed : Une erreur s'est produite lors de l'execution", HttpStatus.INTERNAL_SERVER_ERROR);
+                : new ResponseEntity<>("Failed : Livre avec l'id " + id + " est introuvable", HttpStatus.NOT_FOUND);
     }
+
     // Récupérer les livres par genre
     @GetMapping("/genre/{genre}")
     public ResponseEntity<Object> getLivreByGenre(@PathVariable String genre) {
@@ -39,6 +43,7 @@ public class LivreController {
                 ? new ResponseEntity<>(livres, HttpStatus.OK)
                 : new ResponseEntity<>("failed : Une erreur s'est produite lors de l'execution", HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
     // Récupérer les livres par titre
     @GetMapping("/titre/{titre}")
     public ResponseEntity<Object> getLivreByTitle(@PathVariable String titre) {
@@ -47,6 +52,7 @@ public class LivreController {
                 ? new ResponseEntity<>(livres, HttpStatus.OK)
                 : new ResponseEntity<>("Failed : Une erreur s'est produite lors de l'execution", HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
     // Récupérer les livres par Auteur
     @GetMapping("/auteur/{nom}")
     public ResponseEntity<Object> getLivreByAuthor(@PathVariable String nom) {
@@ -61,6 +67,7 @@ public class LivreController {
         Livre livre = livreService.getLivreParISBN(isbn);
         return livre != null
                 ? new ResponseEntity<>(livre, HttpStatus.OK)
-                : new ResponseEntity<>("Failed : Une erreur s'est produite lors de l'execution", HttpStatus.INTERNAL_SERVER_ERROR);
+                : new ResponseEntity<>("Failed : Livre avec l'isbn " + isbn + " est introuvable", HttpStatus.NOT_FOUND);
+
     }
 }

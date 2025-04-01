@@ -64,6 +64,7 @@ public class AdminService {
         return auteurService.getAuteurByNom(nom);
     }
 
+    @Transactional
     public String createLivre(LivreDTO livreDTO) {
         Livre livre = livreRepository.save(livreDTO.getLivre());
         LivresAuteur livresAuteur = new LivresAuteur();
@@ -82,6 +83,29 @@ public class AdminService {
         }
 
         return "Failed : Une erreur est survenue lors de la creation du livre";
+    }
+
+    @Transactional
+    public String updateLivre(LivreDTO livreDTO) {
+        Livre livre = livreRepository.findById(livreDTO.getLivre().getId()).orElse(null);
+        if (livre == null)
+            return "Failed : Le livre que vous essayer de mettre a jour n'existe pas";
+        livresAuteurRepository.deleteAllByLivreId(livre.getId());
+        LivresAuteur livresAuteur = new LivresAuteur();
+        LivresAuteurId livresAuteurId = new LivresAuteurId();
+        if (livre.getId() != null) {
+            livresAuteurId.setIdLivre(livre.getId());
+            for (Integer auteurId : livreDTO.getAuteurIds()) {
+                Auteur auteur = auteurService.getAuteurById(auteurId);
+                livresAuteurId.setIdAuteur(auteur.getId());
+                livresAuteur.setId(livresAuteurId);
+                livresAuteur.setAuteur(auteur);
+                livresAuteur.setLivre(livre);
+                livresAuteurRepository.save(livresAuteur);
+            }
+            return "Success : Le livre a été mis à jour";
+        }
+        return "Failed : Une erreur est survenue lors de la mise à jour des informations du livre";
     }
 
     @Transactional

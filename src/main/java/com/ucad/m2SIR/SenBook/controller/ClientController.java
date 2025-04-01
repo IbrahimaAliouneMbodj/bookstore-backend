@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/user")
-@PreAuthorize("hasAuthority('CLIENT')")
+@PreAuthorize("hasAuthority('CLIENT') || hasAuthority('ADMIN')")
 public class ClientController {
     private final ClientService clientService;
 

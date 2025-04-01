@@ -96,6 +96,17 @@ public class AdminController {
         );
     }
 
+    @PutMapping("/livres")
+    public ResponseEntity<Object> updateLivre(@RequestBody LivreDTO livreDTO) {
+        String response = adminService.updateLivre(livreDTO);
+        return new ResponseEntity<>(
+                response,
+                response.startsWith("Success")
+                        ? HttpStatus.OK
+                        : HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+
     @DeleteMapping("/livres/{id}")
     public ResponseEntity<Object> removeLivre(@PathVariable int id) {
         String response = adminService.removeLivre(id);
