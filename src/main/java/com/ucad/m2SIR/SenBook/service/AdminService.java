@@ -7,6 +7,7 @@ import com.ucad.m2SIR.SenBook.repository.*;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 
 
@@ -66,13 +67,13 @@ public class AdminService {
 
     @Transactional
     public String createLivre(LivreDTO livreDTO) {
-        Livre livre = livreRepository.save(livreDTO.getLivre());
+        Livre livre = livreRepository.save(this.getLivre(livreDTO));
         LivresAuteur livresAuteur = new LivresAuteur();
         LivresAuteurId livresAuteurId = new LivresAuteurId();
         if (livre.getId() != null) {
             livresAuteurId.setIdLivre(livre.getId());
-            for (Integer auteurId : livreDTO.getAuteurIds()) {
-                Auteur auteur = auteurService.getAuteurById(auteurId);
+            for (AuteurDTO auteurDTO : livreDTO.getAuteurs()) {
+                Auteur auteur = auteurService.getAuteurById(auteurDTO.getId());
                 livresAuteurId.setIdAuteur(auteur.getId());
                 livresAuteur.setId(livresAuteurId);
                 livresAuteur.setAuteur(auteur);
@@ -87,7 +88,7 @@ public class AdminService {
 
     @Transactional
     public String updateLivre(LivreDTO livreDTO) {
-        Livre livre = livreRepository.findById(livreDTO.getLivre().getId()).orElse(null);
+        Livre livre = livreRepository.findById(livreDTO.getId()).orElse(null);
         if (livre == null)
             return "Failed : Le livre que vous essayer de mettre a jour n'existe pas";
         livresAuteurRepository.deleteAllByLivreId(livre.getId());
@@ -95,8 +96,8 @@ public class AdminService {
         LivresAuteurId livresAuteurId = new LivresAuteurId();
         if (livre.getId() != null) {
             livresAuteurId.setIdLivre(livre.getId());
-            for (Integer auteurId : livreDTO.getAuteurIds()) {
-                Auteur auteur = auteurService.getAuteurById(auteurId);
+            for (AuteurDTO auteurDTO : livreDTO.getAuteurs()) {
+                Auteur auteur = auteurService.getAuteurById(auteurDTO.getId());
                 livresAuteurId.setIdAuteur(auteur.getId());
                 livresAuteur.setId(livresAuteurId);
                 livresAuteur.setAuteur(auteur);
@@ -130,6 +131,14 @@ public class AdminService {
         return utilisateurService.getUtilisateurs();
     }
 
+    public List<UtilisateurDTO> rechercherUtilisateur(String text) {
+        return utilisateurService.getUtilisateurByText(text);
+    }
+
+    public String updateUser(Utilisateur user) {
+        return utilisateurService.updateUtilisateur(user);
+    }
+
     public String deleteUtilisateurs(int id) {
         return utilisateurService.deleteUtilisateur(id);
     }
@@ -141,10 +150,8 @@ public class AdminService {
 
         if (commande == null)
             return "Failed : Commande introuvable";
-        System.out.println(commande.getStatus());
         commande.setStatus(nouveauStatus);
         Commande response = commandeRepository.save(commande);
-        System.out.println(response.getStatus());
         if (response.getId() != null)
             return "Success : Le status a été correctement changé";
         return "Failed : Une erreur est survenue lors du changement de status";
@@ -186,4 +193,25 @@ public class AdminService {
                 .toList();
     }
 
+    public Integer getUserCount() {
+        return utilisateurService.getUserCount();
+    }
+
+    public Integer getOrderCount() {
+        return commandeRepository.getOrderCount();
+    }
+
+    private Livre getLivre(LivreDTO livreDTO) {
+        Livre livre = new Livre();
+        livre.setTitre(livreDTO.getTitre());
+        livre.setEditeur(livreDTO.getEditeur());
+        livre.setIsbn(livreDTO.getIsbn());
+        livre.setDatePublication(livreDTO.getDatePublication());
+        livre.setGenre(livreDTO.getGenre());
+        livre.setImage(livreDTO.getImage());
+        livre.setNombrePages(livreDTO.getNombrePages());
+        livre.setDescription(livreDTO.getDescription());
+        livre.setCreeLe(Instant.now());
+        return livre;
+    }
 }

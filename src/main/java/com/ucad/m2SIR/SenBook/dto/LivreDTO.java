@@ -2,11 +2,11 @@ package com.ucad.m2SIR.SenBook.dto;
 
 import com.ucad.m2SIR.SenBook.model.Livre;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 
-public class LivreDTO{
+public class LivreDTO {
+    private int id;
     private String titre;
     private String isbn;
     private LocalDate datePublication;
@@ -15,13 +15,14 @@ public class LivreDTO{
     private String image;
     private Integer nombrePages;
     private String description;
-    private List<Integer> auteurIds;
+    private List<AuteurDTO> auteurs;
+    private List<DetailsLivreDTO> details;
 
     public LivreDTO() {
     }
 
-    public LivreDTO(Livre livre)
-    {
+    public LivreDTO(Livre livre) {
+        this.id = livre.getId();
         this.titre = livre.getTitre();
         this.isbn = livre.getIsbn();
         this.description = livre.getDescription();
@@ -30,7 +31,28 @@ public class LivreDTO{
         this.genre = livre.getGenre();
         this.image = livre.getImage();
         this.nombrePages = livre.getNombrePages();
+    }
 
+    public LivreDTO(Livre livre, List<AuteurDTO> auteurs, List<DetailsLivreDTO> details) {
+        this.id = livre.getId();
+        this.titre = livre.getTitre();
+        this.isbn = livre.getIsbn();
+        this.description = livre.getDescription();
+        this.datePublication = livre.getDatePublication();
+        this.editeur = livre.getEditeur();
+        this.genre = livre.getGenre();
+        this.image = livre.getImage();
+        this.nombrePages = livre.getNombrePages();
+        this.auteurs = auteurs;
+        this.details = details;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getTitre() {
@@ -97,26 +119,19 @@ public class LivreDTO{
         this.description = description;
     }
 
-    public List<Integer> getAuteurIds() {
-        return auteurIds;
+    public List<AuteurDTO> getAuteurs() {
+        return auteurs;
     }
 
-    public void setAuteurIds(List<Integer> auteurIds) {
-        this.auteurIds = auteurIds;
+    public void setAuteurs(List<AuteurDTO> auteurs) {
+        this.auteurs = auteurs;
     }
 
-    public Livre getLivre(){
+    public List<DetailsLivreDTO> getDetails() {
+        return details;
+    }
 
-        Livre livre = new Livre();
-        livre.setTitre(this.titre);
-        livre.setEditeur(this.editeur);
-        livre.setIsbn(this.isbn);
-        livre.setDatePublication(this.datePublication);
-        livre.setGenre(this.genre);
-        livre.setImage(this.image);
-        livre.setNombrePages(this.nombrePages);
-        livre.setDescription(this.description);
-        livre.setCreeLe(Instant.now());
-        return livre;
+    public void setDetails(List<DetailsLivreDTO> details) {
+        this.details = details;
     }
 }

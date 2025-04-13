@@ -3,6 +3,7 @@ package com.ucad.m2SIR.SenBook.controller;
 import com.ucad.m2SIR.SenBook.customTypes.CommandStatus;
 import com.ucad.m2SIR.SenBook.dto.*;
 import com.ucad.m2SIR.SenBook.model.Auteur;
+import com.ucad.m2SIR.SenBook.model.Utilisateur;
 import com.ucad.m2SIR.SenBook.service.AdminService;
 import com.ucad.m2SIR.SenBook.service.InventaireService;
 import org.springframework.http.HttpStatus;
@@ -22,8 +23,7 @@ public class AdminController {
     private final InventaireService inventaireService;
 
 
-    public AdminController(AdminService adminService,
-                           InventaireService inventaireService) {
+    public AdminController(AdminService adminService, InventaireService inventaireService) {
         this.adminService = adminService;
         this.inventaireService = inventaireService;
     }
@@ -148,6 +148,33 @@ public class AdminController {
                 : new ResponseEntity<>("Failed : Une erreur s'est produite lors de la recuperation", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+
+    @GetMapping("/utilisateurs/count")
+    public ResponseEntity<Object> getUserCount() {
+        return new ResponseEntity<>(adminService.getUserCount(), HttpStatus.OK);
+    }
+
+    @GetMapping("/utilisateurs/search")
+    public ResponseEntity<Object> searchUser(@RequestParam(name = "text",required = false, defaultValue = "")  String text) {
+        List<UtilisateurDTO> response = adminService.rechercherUtilisateur(text);
+        return response != null
+                ? new ResponseEntity<>(response, HttpStatus.OK)
+                : new ResponseEntity<>("Failed : Une erreur s'est produite lors de la recuperation", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @PostMapping("/utilisateurs")
+    public ResponseEntity<Object> updateUtilisateurs(@RequestBody Utilisateur user) {
+        String response = adminService.updateUser(user);
+        return new ResponseEntity<>(
+                response,
+                response.startsWith("Success")
+                        ? HttpStatus.OK
+                        : HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+
+
+
     @DeleteMapping("/utilisateurs/{id}")
     public ResponseEntity<Object> deleteUtilisateur(@PathVariable int id) {
         String response = adminService.deleteUtilisateurs(id);
@@ -204,6 +231,11 @@ public class AdminController {
         );
     }
 
+    @GetMapping("/commandes/count")
+    public ResponseEntity<Object> getCommandeCount() {
+        return new ResponseEntity<>(adminService.getOrderCount(), HttpStatus.OK);
+    }
+
     // Récupérer tout l’inventaire
     @GetMapping("/inventaire")
     public ResponseEntity<Object> getTousInventaires() {
@@ -211,6 +243,11 @@ public class AdminController {
         return response != null
                 ? new ResponseEntity<>(response, HttpStatus.OK)
                 : new ResponseEntity<>("Failed : Une erreur s'est produite lors de la recuperation des stocks", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @GetMapping("/inventaire/count")
+    public ResponseEntity<Object> getStockCount() {
+        return new ResponseEntity<>(inventaireService.getStockCount(), HttpStatus.OK);
     }
 
     //Récupérer l’inventaire d’un livre spécifique

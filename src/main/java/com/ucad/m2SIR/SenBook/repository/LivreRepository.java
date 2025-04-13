@@ -16,4 +16,7 @@ public interface LivreRepository extends JpaRepository<Livre, Integer> {
 
     Optional<Livre> findByIsbn(String ISBN);
 
+    List<Livre> findTop4ByTitreContainingOrDescriptionContaining(String text,String text2);
+
+    List<Livre> findAllByTitreContainingOrDescriptionContaining(String text, String text1);
 }

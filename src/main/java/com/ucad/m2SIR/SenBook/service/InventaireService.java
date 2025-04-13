@@ -85,4 +85,8 @@ public class InventaireService {
                 .map(InventaireDTO::new)
                 .toList();
     }
+
+    public Integer getStockCount() {
+        return inventaireRepository.getStockCount();
+    }
 }

@@ -2,6 +2,8 @@ package com.ucad.m2SIR.SenBook.model;
 
 import com.ucad.m2SIR.SenBook.customTypes.TokenType;
 import jakarta.persistence.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Table(name = "tokens")
@@ -20,6 +22,7 @@ public class Token {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "utilisateur_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     public Utilisateur utilisateur;
 
     public Utilisateur getUtilisateur() {

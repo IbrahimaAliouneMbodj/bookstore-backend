@@ -39,13 +39,13 @@ public class PanierService {
     }
 
     @Transactional
-    public String addToPanier(int livreId,int quantite) {
+    public String addToPanier(int detailLivreId, int quantite) {
         Utilisateur user = clientService.getCurrentUser();
-        DetailsLivre livre = detailsLivreRepository.findByLivreId(livreId).orElse(null);
+        DetailsLivre livre = detailsLivreRepository.findById(detailLivreId).orElse(null);
         if (user != null && livre != null) {
             Inventaire inventaire = inventaireRepository.findByDetailLivre(livre).orElse(null);
             if (inventaire != null && inventaire.getQuantite() >= quantite) {
-                Panier panier = panierRepository.findByUtilisateurAndDetailLivre(user,livre).orElse(new Panier());
+                Panier panier = panierRepository.findByUtilisateurAndDetailLivre(user, livre).orElse(new Panier());
                 panier.setDetailLivre(livre);
                 panier.setUtilisateur(user);
                 panier.setDateAjout(Instant.now());
@@ -73,9 +73,9 @@ public class PanierService {
     }
 
     @Transactional
-    public String removeFromPanier(int livreId) {
+    public String removeFromPanier(int detailLivreId) {
         Utilisateur user = clientService.getCurrentUser();
-        DetailsLivre livre = detailsLivreRepository.findByLivreId(livreId).orElse(null);
+        DetailsLivre livre = detailsLivreRepository.findById(detailLivreId).orElse(null);
         if (user != null && livre != null) {
             panierRepository.deleteAllByUtilisateurAndDetailLivre(user, livre);
             if (!panierRepository.existsByUtilisateurAndDetailLivre(user, livre)) {

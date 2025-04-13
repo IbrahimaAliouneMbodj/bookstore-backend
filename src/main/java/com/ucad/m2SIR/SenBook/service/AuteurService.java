@@ -19,11 +19,23 @@ public class AuteurService {
     }
 
     public String createAuteur(Auteur auteur) {
-        auteur.setCreeLe(Instant.now());
-        Auteur response = auteurRepository.save(auteur);
-        return response.getId() != null
-                ? "Success : L'auteur a été créé avec succés"
-                : "Failed : Une erreur est survenue lors de la création de l'auteur";
+        String response = "";
+        if (auteur.getNom().trim().length() < 4) {
+            response = "Failed : Le nom doit depasser 4 charactères";
+        }
+        if (auteur.getPays() == null || auteur.getPays().trim().isEmpty()) {
+            response = "Failed : Le nom du pays ne doit pas etre vide";
+        }
+        if (!response.isEmpty()) {
+            auteur.setCreeLe(Instant.now());
+            auteur.setId(null);
+            if (auteurRepository.save(auteur).getId() != null) {
+                response = "Success : L'auteur a été créé avec succés";
+            } else {
+                response = "Failed : Une erreur est survenue lors de la création de l'auteur";
+            }
+        }
+        return response;
     }
 
     public String removeAuteur(int auteurId) {
