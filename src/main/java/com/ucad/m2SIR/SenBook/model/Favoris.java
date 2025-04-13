@@ -16,7 +16,7 @@ public class Favoris {
     private FavorisId id;
 
     @MapsId("idUtilisateur")
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "id_utilisateur", nullable = false)
     private com.ucad.m2SIR.SenBook.model.Utilisateur utilisateur;
