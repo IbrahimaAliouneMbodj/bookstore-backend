@@ -67,10 +67,28 @@ public class AdminService {
 
     @Transactional
     public String createLivre(LivreDTO livreDTO) {
+        if(livreDTO.getIsbn()==null || livreRepository.existsByIsbn(livreDTO.getIsbn()))
+            return "Failed : L'ISBN spécifié est vide ou bien existe deja";
+        if(livreDTO.getTitre().trim().isEmpty())
+            return "Failed : Le titre ne doit pas etre vide";
+        if(livreDTO.getEditeur().trim().isEmpty())
+            return "Failed : Veuillez spécifier l'editeur du livre";
+        if(livreDTO.getAuteurs().isEmpty())
+            return "Failled : Veuillez specifier au moins un auteur";
+        for(AuteurDTO auteurDTO : livreDTO.getAuteurs())
+        {
+            if(!auteurService.doesAuteurExiste(auteurDTO.getId())) {
+                return "Failed : L'auteur " + auteurDTO.getId() + " n'existe pas veuillez l'enregistrer d'abord";
+            }
+        }
+        if(livreDTO.getNombrePages() <=0){
+            return "failed : Le nombre de page ne doit etre superieur a 0";
+        }
+
         Livre livre = livreRepository.save(this.getLivre(livreDTO));
-        LivresAuteur livresAuteur = new LivresAuteur();
-        LivresAuteurId livresAuteurId = new LivresAuteurId();
         if (livre.getId() != null) {
+            LivresAuteur livresAuteur = new LivresAuteur();
+            LivresAuteurId livresAuteurId = new LivresAuteurId();
             livresAuteurId.setIdLivre(livre.getId());
             for (AuteurDTO auteurDTO : livreDTO.getAuteurs()) {
                 Auteur auteur = auteurService.getAuteurById(auteurDTO.getId());
@@ -91,22 +109,39 @@ public class AdminService {
         Livre livre = livreRepository.findById(livreDTO.getId()).orElse(null);
         if (livre == null)
             return "Failed : Le livre que vous essayer de mettre a jour n'existe pas";
+
+        if(livreDTO.getAuteurs().isEmpty())
+            return "Failled : Veuillez specifier au moins un auteur";
         livresAuteurRepository.deleteAllByLivreId(livre.getId());
         LivresAuteur livresAuteur = new LivresAuteur();
         LivresAuteurId livresAuteurId = new LivresAuteurId();
-        if (livre.getId() != null) {
-            livresAuteurId.setIdLivre(livre.getId());
-            for (AuteurDTO auteurDTO : livreDTO.getAuteurs()) {
-                Auteur auteur = auteurService.getAuteurById(auteurDTO.getId());
-                livresAuteurId.setIdAuteur(auteur.getId());
-                livresAuteur.setId(livresAuteurId);
-                livresAuteur.setAuteur(auteur);
-                livresAuteur.setLivre(livre);
-                livresAuteurRepository.save(livresAuteur);
-            }
-            return "Success : Le livre a été mis à jour";
+
+        livresAuteurId.setIdLivre(livre.getId());
+        for (AuteurDTO auteurDTO : livreDTO.getAuteurs()) {
+            Auteur auteur = auteurService.getAuteurById(auteurDTO.getId());
+            livresAuteurId.setIdAuteur(auteur.getId());
+            livresAuteur.setId(livresAuteurId);
+            livresAuteur.setAuteur(auteur);
+            livresAuteur.setLivre(livre);
+            livresAuteurRepository.save(livresAuteur);
         }
-        return "Failed : Une erreur est survenue lors de la mise à jour des informations du livre";
+        if(!livreDTO.getTitre().trim().isEmpty())
+            livre.setTitre(livreDTO.getTitre());
+
+        if(!livreDTO.getEditeur().trim().isEmpty())
+            livre.setEditeur(livreDTO.getEditeur());
+        if(!livreDTO.getIsbn().equals(livre.getIsbn()) && !livreRepository.existsByIsbn(livreDTO.getIsbn()))
+            livre.setIsbn(livreDTO.getIsbn());
+        livre.setDatePublication(livreDTO.getDatePublication());
+        livre.setGenre(livreDTO.getGenre());
+        livre.setImage(livreDTO.getImage());
+        if( livreDTO.getNombrePages() != null && livreDTO.getNombrePages() > 0 && livreDTO.getNombrePages() != livre.getNombrePages())
+            livre.setNombrePages(livreDTO.getNombrePages());
+        livre.setDescription(livreDTO.getDescription());
+        livre.setCreeLe(Instant.now());
+        return livreRepository.save(livre).getId() != null
+                ? "Success : Le livre a été mis à jour"
+                : "Failed : Une erreur s'est produite lors de la nodification des infos du livre";
     }
 
     @Transactional
@@ -121,6 +156,10 @@ public class AdminService {
 
     public String createDetailLivre(DetailsLivreDTO detailLivre) {
         return detailLivreService.createDetailLivre(detailLivre);
+    }
+
+    public String updateDetailLivre(DetailsLivreDTO detailLivre) {
+        return detailLivreService.updateDetailsLivre(detailLivre);
     }
 
     public String removeDetailsLivre(int detailLivreId) {
@@ -199,6 +238,20 @@ public class AdminService {
 
     public Integer getOrderCount() {
         return commandeRepository.getOrderCount();
+    }
+
+    public List<CommandeDTO> getRecentOrders(){
+        return commandeRepository.findTop5ByOrderByDateCommande()
+                .stream()
+                .map(CommandeDTO::new)
+                .toList();
+    }
+
+    public List<UtilisateurDTO> getRecentUsers(){
+        return commandeRepository.findMostRecentUsers()
+                .stream()
+                .map(UtilisateurDTO::new)
+                .toList();
     }
 
     private Livre getLivre(LivreDTO livreDTO) {

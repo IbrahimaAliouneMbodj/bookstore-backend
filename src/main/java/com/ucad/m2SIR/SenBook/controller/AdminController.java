@@ -129,6 +129,17 @@ public class AdminController {
         );
     }
 
+    @PutMapping("/detailsLivre")
+    public ResponseEntity<Object> updatedetailsLivre(@RequestBody DetailsLivreDTO detailLivre) {
+        String response = adminService.updateDetailLivre(detailLivre);
+        return new ResponseEntity<>(
+                response,
+                response.startsWith("Success")
+                        ? HttpStatus.CREATED
+                        : HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+
     @DeleteMapping("/detailsLivre/{id}")
     public ResponseEntity<Object> removeDetailsLivre(@PathVariable int id) {
         String response = adminService.removeDetailsLivre(id);
@@ -148,6 +159,10 @@ public class AdminController {
                 : new ResponseEntity<>("Failed : Une erreur s'est produite lors de la recuperation", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @GetMapping("/utilisateurs/recent")
+    public ResponseEntity<Object> getRecentUsers() {
+        return new ResponseEntity<>(adminService.getRecentUsers(), HttpStatus.OK);
+    }
 
     @GetMapping("/utilisateurs/count")
     public ResponseEntity<Object> getUserCount() {
@@ -155,7 +170,7 @@ public class AdminController {
     }
 
     @GetMapping("/utilisateurs/search")
-    public ResponseEntity<Object> searchUser(@RequestParam(name = "text",required = false, defaultValue = "")  String text) {
+    public ResponseEntity<Object> searchUser(@RequestParam(name = "text", required = false, defaultValue = "") String text) {
         List<UtilisateurDTO> response = adminService.rechercherUtilisateur(text);
         return response != null
                 ? new ResponseEntity<>(response, HttpStatus.OK)
@@ -172,7 +187,6 @@ public class AdminController {
                         : HttpStatus.INTERNAL_SERVER_ERROR
         );
     }
-
 
 
     @DeleteMapping("/utilisateurs/{id}")
@@ -235,6 +249,12 @@ public class AdminController {
     public ResponseEntity<Object> getCommandeCount() {
         return new ResponseEntity<>(adminService.getOrderCount(), HttpStatus.OK);
     }
+
+    @GetMapping("/commandes/recent")
+    public ResponseEntity<Object> getRecentOrdere() {
+        return new ResponseEntity<>(adminService.getRecentOrders(), HttpStatus.OK);
+    }
+
 
     // Récupérer tout l’inventaire
     @GetMapping("/inventaire")

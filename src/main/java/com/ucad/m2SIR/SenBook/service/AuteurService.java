@@ -48,7 +48,7 @@ public class AuteurService {
     public String updateAuteur(Auteur aut) {
         Auteur auteur = auteurRepository.findById(aut.getId()).orElse(null);
         Auteur response = null;
-        if(auteur!= null) {
+        if (auteur != null) {
             auteur.setPays(aut.getPays());
             auteur.setNom(aut.getNom());
             auteur.setBiographie(aut.getBiographie());
@@ -73,4 +73,7 @@ public class AuteurService {
         return auteurRepository.findByNomContaining(nom);
     }
 
+    public boolean doesAuteurExiste(int id) {
+        return auteurRepository.existsById(id);
+    }
 }

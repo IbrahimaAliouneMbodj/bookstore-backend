@@ -14,4 +14,12 @@ public interface CommandeRepository extends JpaRepository<Commande, Integer> {
 
     @Query("select count(c.id) from Commande c")
     Integer getOrderCount();
+
+    List<Commande> findTop5ByOrderByDateCommande();
+
+    @Query("SELECT c.utilisateur FROM Commande c " +
+            "WHERE c.dateCommande IN (" +
+            "   SELECT MAX(c2.dateCommande) FROM Commande c2 GROUP BY c2.utilisateur" +
+            ") ORDER BY c.dateCommande DESC")
+    List<Utilisateur> findMostRecentUsers();
 }
