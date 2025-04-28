@@ -127,6 +127,21 @@ public class CommandeService {
                 .toList();
     }
 
+    public List<DetailsCommandeDTO> getDetailsByCommandId(int commandId) {
+        Commande commande = commandeRepository.findById(commandId).orElse(null);
+        if (commande != null) {
+            for (CommandeDTO commandeDTO : getCommandes()) {
+                if (commandeDTO.getId().equals(commandId)) {
+                    return detailsCommandeRepository.findAllByCommandeId(commandId)
+                            .stream()
+                            .map(DetailsCommandeDTO::new)
+                            .toList();
+                }
+            }
+        }
+        return null;
+    }
+
     // Associe un paiement à une commande.
     public String effectuerPaiement(PaiementDTO paiementDTO) {
         Commande commande = commandeRepository.findById(paiementDTO.getCommandeId()).orElse(null);

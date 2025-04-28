@@ -129,6 +129,14 @@ public class AdminController {
         );
     }
 
+    @GetMapping("/detailsLivre")
+    public ResponseEntity<Object> getDetails() {
+        List<DetailsLivreDTO> response = adminService.getAllBookDetails();
+        return response != null
+                ? new ResponseEntity<>(response, HttpStatus.OK)
+                : new ResponseEntity<>("Failed : Une erreur est survenue lors de la recuperation", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     @PutMapping("/detailsLivre")
     public ResponseEntity<Object> updatedetailsLivre(@RequestBody DetailsLivreDTO detailLivre) {
         String response = adminService.updateDetailLivre(detailLivre);

@@ -25,10 +25,12 @@ public class InventaireService {
 
     //Ajouter un nouvel article en stock
     public String ajouterStock(InventaireDTO inventaireDTO) {
-        DetailsLivre detailsLivre = detailsLivreRepository.findById(inventaireDTO.getDetailLivre().getIdLivre())
+        DetailsLivre detailsLivre = detailsLivreRepository.findById(inventaireDTO.getDetailLivre().getId())
                 .orElse(null);
         if (detailsLivre == null)
             return "Failed : Détails du livre introuvable";
+        if(inventaireDTO.getQuantite() <=0 )
+            return "Failed : La quantite doit etre superieure a 0";
         if (!inventaireRepository.existsByDetailLivre(detailsLivre)) {
             Inventaire inventaire = new Inventaire();
             inventaire.setDetailLivre(detailsLivre);
@@ -45,7 +47,7 @@ public class InventaireService {
         if (inventaire == null)
             return "Failed : Le stock demandé pour le produit est introuvable";
 
-        inventaire.setQuantite(inventaire.getQuantite() + inventaireDTO.getQuantite());
+        inventaire.setQuantite(inventaireDTO.getQuantite());
         inventaireRepository.save(inventaire);
         return "Success : Stock modifié avec succés";
     }

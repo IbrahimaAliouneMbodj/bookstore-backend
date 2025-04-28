@@ -28,12 +28,13 @@ public class ClientService {
     }
 
     public String changerMotDePasse(String password) {
-        if (password.trim().length() > 8) {
-            Utilisateur user = getCurrentUser();
-            user.setMotDePasse(passwordConfig.getEncoder().encode(password));
-            utilisateurRepository.save(user);
-            return "Success : Mot de passe changé avec succés";
-        }
-        return "Failed : Le mot de passe ne depasse pas 8 caractères";
+        if (password.trim().length() < 8)
+            return "Failed : Le mot de passe ne depasse pas 8 caractères";
+        Utilisateur user = getCurrentUser();
+        user.setMotDePasse(passwordConfig.getEncoder().encode(password));
+        return utilisateurRepository.save(user).getId() != null
+                ? "Success : Mot de passe changé avec succés"
+                : "Failed : Une erreur s'est produite lors de la sauvegarde";
+
     }
 }

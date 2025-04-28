@@ -158,6 +158,10 @@ public class AdminService {
         return detailLivreService.createDetailLivre(detailLivre);
     }
 
+    public List<DetailsLivreDTO> getAllBookDetails() {
+        return detailLivreService.getAllDetails();
+    }
+
     public String updateDetailLivre(DetailsLivreDTO detailLivre) {
         return detailLivreService.updateDetailsLivre(detailLivre);
     }

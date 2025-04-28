@@ -9,6 +9,7 @@ import com.ucad.m2SIR.SenBook.repository.LivreRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -69,5 +70,12 @@ public class DetailLivreService {
             return "Success : Les details du livre sont correctement supprimé";
         }
         return "Failed : Une erreur est survenue lors de la suppression des details";
+    }
+
+    public List<DetailsLivreDTO> getAllDetails() {
+        return detailsLivreRepository.findAll()
+                .stream()
+                .map(DetailsLivreDTO::new)
+                .toList();
     }
 }

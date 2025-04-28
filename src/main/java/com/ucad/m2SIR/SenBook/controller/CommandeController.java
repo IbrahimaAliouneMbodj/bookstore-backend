@@ -69,4 +69,14 @@ public class CommandeController {
                 "Failed : Une erreur s'est produite lors de la recuperation des commandes",
                 HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Object> getDetailsByCommandId(@PathVariable int id) {
+        List<DetailsCommandeDTO> response = commandeService.getDetailsByCommandId(id);
+        return response != null
+                ? new ResponseEntity<>(response, HttpStatus.OK)
+                : new ResponseEntity<>(
+                "Failed : Une erreur s'est produite lors de la recuperation des commandes",
+                HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }
