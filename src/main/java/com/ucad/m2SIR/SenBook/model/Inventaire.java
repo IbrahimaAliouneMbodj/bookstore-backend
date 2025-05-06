@@ -15,7 +15,7 @@ public class Inventaire {
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "id_detail_livre")
     private DetailsLivre detailLivre;
 
