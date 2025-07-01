@@ -1,5 +1,6 @@
 package com.ucad.m2SIR.SenBook.service;
 
+import com.ucad.m2SIR.SenBook.customTypes.BookFormat;
 import com.ucad.m2SIR.SenBook.dto.AuteurDTO;
 import com.ucad.m2SIR.SenBook.dto.DetailsLivreDTO;
 import com.ucad.m2SIR.SenBook.dto.InventaireDTO;
@@ -112,6 +113,26 @@ public class LivreService {
             return new InventaireDTO(inventaire);
         if(detailsLivre!=null)
             return new InventaireDTO(new DetailsLivreDTO(detailsLivre),0);
+        return null;
+    }
+
+    public boolean isBookAvailable(int livreID, BookFormat format) {
+        List<DetailsLivre> details = detailsLivreRepository.findAllByLivreId(livreID);
+        for (DetailsLivre detail : details) {
+            if(detail.getFormat() == format) {
+                if (inventaireRepository.existsByDetailLivre(detail)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public String getTitleByBookId(int livreId){
+        Livre book = livreRepository.findById(livreId).orElse(null);
+        if (book != null) {
+            return book.getTitre();
+        }
         return null;
     }
 }

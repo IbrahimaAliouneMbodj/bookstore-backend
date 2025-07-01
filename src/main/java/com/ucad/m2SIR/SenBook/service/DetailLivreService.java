@@ -27,19 +27,23 @@ public class DetailLivreService {
     public String createDetailLivre(DetailsLivreDTO detailLivre) {
         Optional<Livre> livre = livreRepository.findById(detailLivre.getIdLivre());
         if (livre.isPresent()) {
-            DetailsLivre details = new DetailsLivre();
-            details.setLivre(livre.get());
-            if (detailLivre.getLangue().trim().isEmpty())
-                return "Failed : Veuillez spécifier une langue pour le livre";
-            details.setLangue(detailLivre.getLangue());
-            if (detailLivre.getFormat() != BookFormat.PDF && detailLivre.getFormat() != BookFormat.PHYSICAL)
-                return "Failed : Le format spécifié est n'existe pas";
-            details.setFormat(detailLivre.getFormat());
-            if (detailLivre.getPrixUnitaire().doubleValue() <= 0.0d)
-                return "Failed : Le prix doit etre superieur a 0";
-            details.setPrixUnitaire(detailLivre.getPrixUnitaire());
-            if (detailsLivreRepository.save(details).getId() != null) {
-                return "Success : Details du livre ajouté avec succés";
+            if (!detailsLivreRepository.existsByLivreIdAndFormatAndLangue(livre.get().getId(),detailLivre.getFormat(),detailLivre.getLangue())) {
+                DetailsLivre details = new DetailsLivre();
+                details.setLivre(livre.get());
+                if (detailLivre.getLangue().trim().isEmpty())
+                    return "Failed : Veuillez spécifier une langue pour le livre";
+                details.setLangue(detailLivre.getLangue());
+                if (detailLivre.getFormat() != BookFormat.PDF && detailLivre.getFormat() != BookFormat.PHYSICAL)
+                    return "Failed : Le format spécifié est n'existe pas";
+                details.setFormat(detailLivre.getFormat());
+                if (detailLivre.getPrixUnitaire().doubleValue() <= 0.0d)
+                    return "Failed : Le prix doit etre superieur a 0";
+                details.setPrixUnitaire(detailLivre.getPrixUnitaire());
+                if (detailsLivreRepository.save(details).getId() != null) {
+                    return "Success : Details du livre ajouté avec succés";
+                }
+            }else{
+                return "Failed : Il existe deja un enregistrement similaire.";
             }
         }
         return "Failed : Une erreur est survenue lors de l'ajout des details du livre";

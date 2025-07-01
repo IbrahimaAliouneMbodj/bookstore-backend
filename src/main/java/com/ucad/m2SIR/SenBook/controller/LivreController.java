@@ -1,5 +1,6 @@
 package com.ucad.m2SIR.SenBook.controller;
 
+import com.ucad.m2SIR.SenBook.customTypes.BookFormat;
 import com.ucad.m2SIR.SenBook.dto.InventaireDTO;
 import com.ucad.m2SIR.SenBook.dto.LivreDTO;
 import com.ucad.m2SIR.SenBook.service.LivreService;
@@ -95,5 +96,19 @@ public class LivreController {
                 ? new ResponseEntity<>(inventaire, HttpStatus.OK)
                 : new ResponseEntity<>("Failed : Stock du livre introuvable", HttpStatus.NOT_FOUND);
 
+    }
+
+    @GetMapping("/check/{livreId}/{format}")
+    public ResponseEntity<Object> isBookAvailable(@PathVariable int livreId, @PathVariable BookFormat format) {
+        boolean resp = livreService.isBookAvailable(livreId, format);
+        return new ResponseEntity<>(resp, HttpStatus.OK);
+    }
+
+    @GetMapping("/titleById/{livreId}")
+    public ResponseEntity<Object> getBookTitle(@PathVariable int livreId) {
+        String titre = livreService.getTitleByBookId(livreId);
+        return titre != null
+                ? new ResponseEntity<>(titre, HttpStatus.OK)
+                : new ResponseEntity<>("Failed : Livre introuvable", HttpStatus.NOT_FOUND);
     }
 }

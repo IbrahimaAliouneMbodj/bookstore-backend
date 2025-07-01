@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface AuteurRepository extends JpaRepository<Auteur, Integer> {
     List<Auteur> findByNomContaining(String nom);
+
+    boolean existsByNom(String nom);
 }

@@ -26,7 +26,10 @@ public class AuteurService {
         if (auteur.getPays() == null || auteur.getPays().trim().isEmpty()) {
             response = "Failed : Le nom du pays ne doit pas etre vide";
         }
-        if (!response.isEmpty()) {
+        if(auteurRepository.existsByNom(auteur.getNom())) {
+            response = "Failed : Le nom existe deja";
+        }
+        if (response.isEmpty()) {
             auteur.setCreeLe(Instant.now());
             auteur.setId(null);
             if (auteurRepository.save(auteur).getId() != null) {
@@ -47,18 +50,32 @@ public class AuteurService {
 
     public String updateAuteur(Auteur aut) {
         Auteur auteur = auteurRepository.findById(aut.getId()).orElse(null);
-        Auteur response = null;
-        if (auteur != null) {
-            auteur.setPays(aut.getPays());
-            auteur.setNom(aut.getNom());
-            auteur.setBiographie(aut.getBiographie());
-            auteur.setDateNaissance(aut.getDateNaissance());
-            response = auteurRepository.save(auteur);
-        }
-        return response != null
-                ? "Success : Auteur a été mis a jour correctement"
-                : "Failed : Une erreur est survenue lors de la mise a jour de l'auteur";
 
+        if (auteur != null) {
+            String response = "";
+            if (aut.getNom().trim().length() < 4) {
+                response = "Failed : Le nom doit depasser 4 charactères";
+            }
+            if (aut.getPays() == null || aut.getPays().trim().isEmpty()) {
+                response = "Failed : Le nom du pays ne doit pas etre vide";
+            }
+            if(!aut.getNom().equals(auteur.getNom()) && auteurRepository.existsByNom(aut.getNom())) {
+                response = "Failed : Le nom spécifié existe deja";
+            }
+            if (response.isEmpty()) {
+                auteur.setPays(aut.getPays());
+                auteur.setNom(aut.getNom());
+                auteur.setBiographie(aut.getBiographie());
+                auteur.setDateNaissance(aut.getDateNaissance());
+                if (auteurRepository.save(auteur).getId() != null) {
+                    response = "Success : Auteur a été mis a jour correctement";
+                } else {
+                    response = "Failed : Une erreur est survenue lors de la mise a jour de l'auteur";
+                }
+            }
+            return response;
+        }
+        return "Failed : L'auteur que vous essayer de modifié n'existe pas";
     }
 
     public List<Auteur> getAuteurs() {
